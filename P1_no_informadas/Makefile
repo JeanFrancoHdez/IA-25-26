@@ -7,7 +7,7 @@ CXXFLAGS = -std=c++11 -Wall -Wextra -O2
 OBJDIR = obj
 
 # Archivos fuente
-SOURCES = main.cc node.cc graph.cc search_algorithm.cc bfs.cc dfs.cc
+SOURCES = main_P1.cc node.cc graph.cc search_algorithm.cc bfs.cc dfs.cc
 HEADERS = node.h graph.h search_algorithm.h bfs.h dfs.h
 
 # Archivos objeto
