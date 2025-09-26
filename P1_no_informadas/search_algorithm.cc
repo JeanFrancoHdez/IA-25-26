@@ -13,7 +13,7 @@ SearchAlgorithm::~SearchAlgorithm() {
 
 void SearchAlgorithm::MarkNodeGenerated(int vertex) {
   generated_nodes_.push_back(vertex);
-  std::sort(generated_nodes_.begin(), generated_nodes_.end()); // Mantener ordenado
+  std::sort(generated_nodes_.begin(), generated_nodes_.end());
 }
 
 std::vector<int> SearchAlgorithm::ReconstructPath(std::shared_ptr<Node> goal_node) const {
@@ -56,7 +56,6 @@ void SearchAlgorithm::AddIteration() {
 void SearchAlgorithm::MarkNodeInspected(int vertex) {
   if (std::find(inspected_nodes_.begin(), inspected_nodes_.end(), vertex) == inspected_nodes_.end()) {
     inspected_nodes_.push_back(vertex);
-    std::sort(inspected_nodes_.begin(), inspected_nodes_.end());
   }
 }
 
