@@ -22,29 +22,30 @@ void ShowUsage(const std::string& program_name) {
   std::cout << "  " << program_name << " grafo.txt 1 4 dfs" << std::endl;
 }
 
-// Ejecuta un algoritmo de búsqueda y muestra el resultado
-void ExecuteSearch(SearchAlgorithm* algorithm, int start, int goal) {
+void ExecuteSearch(SearchAlgorithm* algorithm, const Graph& graph, int start, int goal) {
   std::cout << "Ejecutando " << algorithm->GetAlgorithmName() << "..." << std::endl;
   
   SearchResult result = algorithm->Search(start, goal);
   
-  if (result.path_found) {
-    std::cout << "Camino encontrado: ";
-    for (size_t i = 0; i < result.path.size(); ++i) {
-      if (i > 0) std::cout << " -> ";
-      std::cout << result.path[i];
-    }
+  std::string report = algorithm->GenerateDetailedReport(result, start, goal);
+  std::cout << report << std::endl;
+  
+  std::string algorithm_name = algorithm->GetAlgorithmName();
+  std::string filename = "resultado_" + algorithm_name + "_" + std::to_string(start) + "_to_" + std::to_string(goal) + ".txt";
+  
+  if (algorithm->SaveResultToFile(result, start, goal, filename)) {
+    std::cout << "Resultado guardado en: " << filename << std::endl;
     std::cout << std::endl;
-    std::cout << "Costo total: " << result.total_cost << std::endl;
   } else {
-    std::cout << "No se encontró camino entre " << start << " y " << goal << std::endl;
+    std::cerr << "Error al guardar el resultado en archivo" << std::endl;
   }
+  
+  //std::cout << std::string(60, '-') << std::endl;
 }
 
 int main(int argc, char* argv[]) {
-  std::cout << "=== Búsquedas BFS y DFS ===" << std::endl;
+  std::cout << "\n=== BÚSQUEDAS NO INFORMADAS ===" << std::endl;
   
-  // Verificar argumentos
   if (argc < 4 || argc > 5) {
     ShowUsage(argv[0]);
     return 1;
@@ -74,13 +75,11 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   
-  std::cout << "Grafo cargado: " << graph.GetNumVertices() << " vértices, " 
-            << graph.GetNumEdges() << " aristas" << std::endl;
+  std::cout << "\nGrafo cargado: " << graph.GetNumVertices() << " vértices, " << graph.GetNumEdges() << " aristas" << std::endl;
   
   // Verificar vértices válidos
   if (!graph.IsValidVertex(start_vertex) || !graph.IsValidVertex(goal_vertex)) {
-    std::cerr << "Error: Vértices inválidos. Deben estar entre 1 y " 
-              << graph.GetNumVertices() << std::endl;
+    std::cerr << "Error: Vértices inválidos. Deben estar entre 1 y " << graph.GetNumVertices() << std::endl;
     return 1;
   }
   
@@ -89,12 +88,12 @@ int main(int argc, char* argv[]) {
   // Ejecutar algoritmos según la opción elegida
   if (algorithm_choice == "bfs" || algorithm_choice == "both") {
     BFS bfs_algorithm(&graph);
-    ExecuteSearch(&bfs_algorithm, start_vertex, goal_vertex);
+    ExecuteSearch(&bfs_algorithm, graph, start_vertex, goal_vertex);
   }
   
   if (algorithm_choice == "dfs" || algorithm_choice == "both") {
     DFS dfs_algorithm(&graph);
-    ExecuteSearch(&dfs_algorithm, start_vertex, goal_vertex);
+    ExecuteSearch(&dfs_algorithm, graph, start_vertex, goal_vertex);
   }
   
   if (algorithm_choice != "bfs" && algorithm_choice != "dfs" && algorithm_choice != "both") {

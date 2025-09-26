@@ -8,7 +8,8 @@ std::string BFS::GetAlgorithmName() const {
 }
 
 SearchResult BFS::Search(int start, int goal) {
-  // Limpiar estructuras
+  // Reiniciar estructuras
+  Reset();
   while (!frontier_.empty()) {
     frontier_.pop();
   }
@@ -20,12 +21,13 @@ SearchResult BFS::Search(int start, int goal) {
     return result;
   }
   
-  // Crear nodo inicial y añadirlo a la cola
   std::shared_ptr<Node> start_node = std::make_shared<Node>(start);
   frontier_.push(start_node);
+  MarkNodeGenerated(start);
+  
+  AddIteration();
   
   while (!frontier_.empty()) {
-    // Tomar el primer nodo de la cola
     std::shared_ptr<Node> current_node = frontier_.front();
     frontier_.pop();
     
@@ -36,19 +38,22 @@ SearchResult BFS::Search(int start, int goal) {
     }
     
     explored_.insert(current_vertex);
+    MarkNodeInspected(current_vertex);
     
     if (current_vertex == goal) {
       result.path_found = true;
       result.path = ReconstructPath(current_node);
       result.total_cost = CalculatePathCost(result.path);
+      result.iterations = iterations_;
       return result;
     }
     
-    // Expandir vecinos
     std::vector<int> neighbors = graph_->GetNeighbors(current_vertex);
     for (int neighbor : neighbors) {
-      // Solo añadir vecinos no explorados
+      // Solo generar y añadir a la frontera si no ha sido explorado
       if (explored_.find(neighbor) == explored_.end()) {
+        MarkNodeGenerated(neighbor);
+        
         double edge_cost = graph_->GetEdgeCost(current_vertex, neighbor);
         double new_path_cost = current_node->GetPathCost() + edge_cost;
         
@@ -56,8 +61,11 @@ SearchResult BFS::Search(int start, int goal) {
         frontier_.push(neighbor_node);
       }
     }
+    
+    AddIteration();
   }
   
   // No se encontró camino
+  result.iterations = iterations_;
   return result;
 }
