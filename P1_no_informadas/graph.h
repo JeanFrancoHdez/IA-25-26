@@ -29,9 +29,9 @@ class Graph {
     void CalculateEdges();
 
   private:
-    int num_vertices_;                          // Número de vértices del grafo
-    std::vector<std::vector<double>> matrix_;   // Matriz de adyacencia con costos
-    int num_edges_;                             // Número de aristas del grafo
+    int num_vertices_;
+    std::vector<std::vector<double>> matrix_;
+    int num_edges_;
 };
 
-#endif // GRAPH_H
+#endif

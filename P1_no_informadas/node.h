@@ -3,11 +3,12 @@
 
 #include <memory>
 
-// Clase para representar un nodo en el árbol de búsqueda
+/**
+ * @brief Clase para representar un nodo en el árbol de búsqueda
+ */
 class Node {
   public:
     Node(int vertex, std::shared_ptr<Node> parent = nullptr, double path_cost = 0.0);
-    // Getters
     int GetVertex() const;
     std::shared_ptr<Node> GetParent() const;
     double GetPathCost() const;

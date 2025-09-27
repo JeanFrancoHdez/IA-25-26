@@ -31,7 +31,7 @@ bool Graph::LoadFromFile(const std::string& filename) {
 
   matrix_.resize(num_vertices_, std::vector<double>(num_vertices_, -1.0));
   
-  // Establecer diagonal principal a 0 (distancia de un vértice a sí mismo)
+  // Establecer diagonal principal a 0
   for (int i = 0; i < num_vertices_; ++i) {
     matrix_[i][i] = 0.0;
   }
@@ -71,7 +71,6 @@ void Graph::CalculateEdges() {
   }
 }
 
-// Getters
 int Graph::GetNumVertices() const {
   return num_vertices_;
 }

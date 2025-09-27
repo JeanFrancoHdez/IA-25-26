@@ -1,7 +1,6 @@
 #include "bfs.h"
 
-BFS::BFS(const Graph* graph) : SearchAlgorithm(graph) {
-}
+BFS::BFS(const Graph* graph) : SearchAlgorithm(graph) {}
 
 std::string BFS::GetAlgorithmName() const {
   return "BFS";

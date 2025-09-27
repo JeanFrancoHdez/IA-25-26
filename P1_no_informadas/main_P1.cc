@@ -39,8 +39,6 @@ void ExecuteSearch(SearchAlgorithm* algorithm, const Graph& graph, int start, in
   } else {
     std::cerr << "Error al guardar el resultado en archivo" << std::endl;
   }
-  
-  //std::cout << std::string(60, '-') << std::endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -67,7 +65,6 @@ int main(int argc, char* argv[]) {
     algorithm_choice = argv[4];
   }
   
-  // Cargar grafo
   Graph graph(graph_file);
   
   if (graph.GetNumVertices() == 0) {
@@ -77,7 +74,6 @@ int main(int argc, char* argv[]) {
   
   std::cout << "\nGrafo cargado: " << graph.GetNumVertices() << " vértices, " << graph.GetNumEdges() << " aristas" << std::endl;
   
-  // Verificar vértices válidos
   if (!graph.IsValidVertex(start_vertex) || !graph.IsValidVertex(goal_vertex)) {
     std::cerr << "Error: Vértices inválidos. Deben estar entre 1 y " << graph.GetNumVertices() << std::endl;
     return 1;
@@ -85,7 +81,6 @@ int main(int argc, char* argv[]) {
   
   std::cout << "Buscar camino de " << start_vertex << " a " << goal_vertex << std::endl;
   
-  // Ejecutar algoritmos según la opción elegida
   if (algorithm_choice == "bfs" || algorithm_choice == "both") {
     BFS bfs_algorithm(&graph);
     ExecuteSearch(&bfs_algorithm, graph, start_vertex, goal_vertex);
