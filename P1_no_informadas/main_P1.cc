@@ -22,7 +22,7 @@ void ShowUsage(const std::string& program_name) {
   std::cout << "  " << program_name << " grafo.txt 1 4 dfs" << std::endl;
 }
 
-void ExecuteSearch(SearchAlgorithm* algorithm, const Graph& graph, int start, int goal) {
+void ExecuteSearch(SearchAlgorithm* algorithm, int start, int goal) {
   std::cout << "Ejecutando " << algorithm->GetAlgorithmName() << "..." << std::endl;
   
   SearchResult result = algorithm->Search(start, goal);
@@ -83,12 +83,12 @@ int main(int argc, char* argv[]) {
   
   if (algorithm_choice == "bfs" || algorithm_choice == "both") {
     BFS bfs_algorithm(&graph);
-    ExecuteSearch(&bfs_algorithm, graph, start_vertex, goal_vertex);
+    ExecuteSearch(&bfs_algorithm, start_vertex, goal_vertex);
   }
   
   if (algorithm_choice == "dfs" || algorithm_choice == "both") {
     DFS dfs_algorithm(&graph);
-    ExecuteSearch(&dfs_algorithm, graph, start_vertex, goal_vertex);
+    ExecuteSearch(&dfs_algorithm, start_vertex, goal_vertex);
   }
   
   if (algorithm_choice != "bfs" && algorithm_choice != "dfs" && algorithm_choice != "both") {
