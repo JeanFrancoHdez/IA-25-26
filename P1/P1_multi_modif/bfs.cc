@@ -10,7 +10,6 @@ std::string BFS::GetAlgorithmName() const {
 
 // Función auxiliar para hacer BFS desde cualquier nodo
 SearchResult BFS::BFS_From_Node(int start, int goal) {
-  // Reiniciar estructuras
   Reset();
   while (!frontier_.empty()) {
     frontier_.pop();
@@ -67,7 +66,6 @@ SearchResult BFS::BFS_From_Node(int start, int goal) {
     AddIteration();
   }
   
-  // No se encontró camino
   result.iterations = iterations_;
   return result;
 }
@@ -78,38 +76,30 @@ SearchResult BFS::Search(int start, int goal) {
     return result;
   }
   
-  // Primero intentar BFS directo desde el nodo inicial
   SearchResult result = BFS_From_Node(start, goal);
   if (result.path_found) {
     return result;
   }
   
-  // Si no se encuentra, hacer multiarranque
   std::random_device rd;
   std::mt19937 gen(rd());
   
-  // Obtener los hijos del nodo inicial
   std::vector<int> children = graph_->GetNeighbors(start);
   if (children.empty()) {
-    return result; // No hay hijos, devolver resultado vacío
+    return result;
   }
   
-  // Máximo 10 intentos
   for (int attempt = 0; attempt < 10; ++attempt) {
-    // Seleccionar un hijo al azar
     std::uniform_int_distribution<> dis(0, children.size() - 1);
     int random_child = children[dis(gen)];
     
-    // Hacer BFS desde ese hijo
     SearchResult attempt_result = BFS_From_Node(random_child, goal);
     if (attempt_result.path_found) {
-      // Añadir el nodo inicial al principio del camino
       attempt_result.path.insert(attempt_result.path.begin(), start);
       attempt_result.total_cost += graph_->GetEdgeCost(start, random_child);
       return attempt_result;
     }
   }
   
-  // No se encontró camino en ningún intento
   return result;
 }
