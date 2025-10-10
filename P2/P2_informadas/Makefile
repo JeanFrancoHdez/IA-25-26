@@ -9,7 +9,7 @@ SRCDIR = .
 OBJDIR = obj
 
 # Archivos fuente
-SOURCES = main_P2_astar.cc map.cc A_star.cc A_star_node.cc dynamic_environment.cc
+SOURCES = main_P2_astar.cc maze.cc A_star.cc A_star_node.cc dynamic_environment.cc
 OBJECTS = $(SOURCES:%.cc=$(OBJDIR)/%.o)
 
 # Archivo ejecutable
@@ -73,8 +73,8 @@ help:
 .PHONY: all clean clean-obj test run help
 
 # Dependencias específicas
-$(OBJDIR)/main_P2_astar.o: main_P2_astar.cc map.h A_star.h dynamic_environment.h
-$(OBJDIR)/map.o: map.cc map.h
-$(OBJDIR)/A_star.o: A_star.cc A_star.h map.h A_star_node.h
-$(OBJDIR)/A_star_node.o: A_star_node.cc A_star_node.h map.h
-$(OBJDIR)/dynamic_environment.o: dynamic_environment.cc dynamic_environment.h map.h A_star.h
+$(OBJDIR)/main_P2_astar.o: main_P2_astar.cc maze.h A_star.h dynamic_environment.h
+$(OBJDIR)/maze.o: maze.cc maze.h
+$(OBJDIR)/A_star.o: A_star.cc A_star.h maze.h A_star_node.h
+$(OBJDIR)/A_star_node.o: A_star_node.cc A_star_node.h maze.h
+$(OBJDIR)/dynamic_environment.o: dynamic_environment.cc dynamic_environment.h maze.h A_star.h

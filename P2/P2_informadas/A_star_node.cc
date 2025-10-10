@@ -1,7 +1,6 @@
 #include "A_star_node.h"
 
-AStarNode::AStarNode(const Position& position, std::shared_ptr<AStarNode> parent, 
-     double g_cost, double h_cost)
+AStarNode::AStarNode(const Position& position, std::shared_ptr<AStarNode> parent, double g_cost, double h_cost)
   : position_(position), parent_(parent), g_cost_(g_cost), h_cost_(h_cost) {
 }
 
@@ -35,12 +34,4 @@ void AStarNode::SetHCost(double h_cost) {
 
 void AStarNode::SetParent(std::shared_ptr<AStarNode> parent) {
   parent_ = parent;
-}
-
-bool AStarNode::operator<(const AStarNode& other) const {
-  return GetFCost() < other.GetFCost();
-}
-
-bool AStarNode::operator>(const AStarNode& other) const {
-  return GetFCost() > other.GetFCost();
 }
