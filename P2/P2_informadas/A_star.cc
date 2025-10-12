@@ -33,6 +33,27 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
   while (!open_list_.empty()) {
     iterations_++;
   
+    // Capturar estado actual para el registro de iteración
+    IterationInfo iter_info;
+    iter_info.iteration = iterations_;
+    
+    // Capturar nodos generados (open + closed)
+    std::vector<Position> generated_nodes;
+    for (const auto& pair : open_map_) {
+      generated_nodes.push_back(pair.second->GetPosition());
+    }
+    for (const auto& pair : closed_list_) {
+      generated_nodes.push_back(pair.second->GetPosition());
+    }
+    iter_info.generated_nodes = generated_nodes;
+    
+    // Capturar nodos inspeccionados (closed_list)
+    std::vector<Position> inspected_nodes;
+    for (const auto& pair : closed_list_) {
+      inspected_nodes.push_back(pair.second->GetPosition());
+    }
+    iter_info.inspected_nodes = inspected_nodes;
+  
     // Seleccionar nodo with menor f(n)
     auto current = open_list_.top();
     open_list_.pop();
@@ -44,6 +65,9 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
     open_map_.erase(current_key);
     closed_list_[current_key] = current;
     nodes_inspected_++;
+    
+    // Guardar información de iteración DESPUÉS de procesar
+    result.iteration_details.push_back(iter_info);
   
     if (verbose) {
       std::cout << "Iteración " << iterations_ << ": Inspeccionando (" 

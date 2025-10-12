@@ -7,53 +7,150 @@
 #include <iomanip>
 #include <cstdlib>
 
-void SaveStaticResultToFile(const AStarResult& result, const std::string& filename, 
-                           const Position& start, const Position& goal, const Maze* maze) {
+// Función para convertir DynamicResult en AStarResult agregado
+AStarResult ConvertDynamicToAStarResult(const DynamicResult& dynamic_result) {
+  AStarResult combined_result;
+  combined_result.path_found = dynamic_result.success;
+  combined_result.path = dynamic_result.complete_path;
+  combined_result.total_cost = dynamic_result.total_cost;
+  
+  // Combinar todas las iteraciones de todas las búsquedas
+  int iteration_counter = 0;
+  for (const auto& search : dynamic_result.individual_searches) {
+    for (const auto& iter : search.iteration_details) {
+      IterationInfo combined_iter;
+      combined_iter.iteration = ++iteration_counter;
+      combined_iter.generated_nodes = iter.generated_nodes;
+      combined_iter.inspected_nodes = iter.inspected_nodes;
+      combined_result.iteration_details.push_back(combined_iter);
+    }
+    combined_result.nodes_generated += search.nodes_generated;
+    combined_result.nodes_inspected += search.nodes_inspected;
+    combined_result.iterations += search.iterations;
+  }
+  
+  return combined_result;
+}
+
+void SaveResultToFile(const AStarResult& result, const std::string& filename, 
+                     const std::string& original_filename, const Position& start, 
+                     const Position& goal, const Maze* maze, bool is_dynamic = false, 
+                     const DynamicResult* dynamic_result = nullptr) {
   std::ofstream file(filename);
   if (!file.is_open()) {
     std::cerr << "Error: No se puede crear el archivo " << filename << std::endl;
     return;
   }
   
+  // Tabla inicial con información básica
   file << "Búsqueda A*. Función heurística h(·)\n";
-  file << std::setw(10) << "Instancia" << std::setw(5) << "n" << std::setw(5) << "m" 
+  file << std::setw(12) << "Instancia" << std::setw(5) << "n" << std::setw(5) << "m" 
        << std::setw(8) << "S" << std::setw(8) << "E" << std::setw(15) << "Camino" 
        << std::setw(8) << "Coste" << std::setw(12) << "Nodos Gen." << std::setw(12) << "Nodos Insp." << "\n";
   
-  file << std::setw(10) << "M1";
+  file << std::setw(12) << original_filename;
   file << std::setw(5) << maze->GetRows();
   file << std::setw(5) << maze->GetCols();
   file << std::setw(8) << ("(" + std::to_string(start.row) + "," + std::to_string(start.col) + ")");
   file << std::setw(8) << ("(" + std::to_string(goal.row) + "," + std::to_string(goal.col) + ")");
   file << std::setw(15) << (result.path_found ? "Encontrado" : "No encontrado");
-  file << std::setw(8) << std::fixed << std::setprecision(1) << result.total_cost;
+  file << std::setw(8) << std::fixed << std::setprecision(2) << result.total_cost;
   file << std::setw(12) << result.nodes_generated;
   file << std::setw(12) << result.nodes_inspected << "\n\n";
   
-  // Información detallada del resultado
-  file << "=== Información Detallada ===\n";
-  file << "Laberinto: " << maze->GetRows() << "x" << maze->GetCols() << "\n";
-  file << "Punto de inicio: (" << start.row << "," << start.col << ")\n";
-  file << "Punto objetivo: (" << goal.row << "," << goal.col << ")\n";
-  file << "Resultado: " << (result.path_found ? "Camino encontrado" : "No se encontró camino") << "\n";
+  // Laberinto resuelto (redirigir cout a file)
+  file << "\nLaberinto " << (is_dynamic ? "dinámico" : "estático") << " resuelto.";
+  
+  // Capturar la salida del laberinto
+  std::streambuf* cout_backup = std::cout.rdbuf();
+  std::cout.rdbuf(file.rdbuf());
   
   if (result.path_found) {
-    file << "Costo total: " << std::fixed << std::setprecision(1) << result.total_cost << "\n";
-    file << "Longitud del camino: " << result.path.size() << " casillas\n";
-    
-    file << "Camino completo: ";
-    for (size_t i = 0; i < result.path.size(); ++i) {
-      file << "(" << result.path[i].row << "," << result.path[i].col << ")";
-      if (i < result.path.size() - 1) file << " -> ";
-      if ((i + 1) % 8 == 0 && i < result.path.size() - 1) file << "\n                 ";
-    }
-    file << "\n";
+    maze->Print(result.path);
+  } else {
+    maze->Print();
   }
   
-  file << "Estadísticas de búsqueda:\n";
-  file << "- Nodos generados: " << result.nodes_generated << "\n";
-  file << "- Nodos inspeccionados: " << result.nodes_inspected << "\n";
-  file << "- Iteraciones realizadas: " << result.iterations << "\n";
+  std::cout.rdbuf(cout_backup);
+  
+  // Información detallada por iteraciones
+  file << "--------------------------------------\n";
+  file << "Número de filas del mapa: " << maze->GetRows() << "\n";
+  file << "Número de columnas del mapa: " << maze->GetCols() << "\n";
+  file << "Punto de salida: (" << start.row << "," << start.col << ")\n";
+  file << "Punto meta: (" << goal.row << "," << goal.col << ")\n";
+  file << "--------------------------------------\n";
+  
+  // Iteraciones con nodos generados e inspeccionados
+  for (const auto& iter : result.iteration_details) {
+    file << "Iteración " << iter.iteration << "\n";
+    
+    file << "Nodos generados: ";
+    for (size_t i = 0; i < iter.generated_nodes.size(); ++i) {
+      file << "(" << iter.generated_nodes[i].row << "," << iter.generated_nodes[i].col << ")";
+      if (i < iter.generated_nodes.size() - 1) file << ", ";
+    }
+    file << "\n";
+    
+    file << "Nodos inspeccionados: ";
+    if (iter.inspected_nodes.empty()) {
+      file << "-";
+    } else {
+      for (size_t i = 0; i < iter.inspected_nodes.size(); ++i) {
+        file << "(" << iter.inspected_nodes[i].row << "," << iter.inspected_nodes[i].col << ")";
+        if (i < iter.inspected_nodes.size() - 1) file << ", ";
+      }
+    }
+    file << "\n";
+    file << "--------------------------------------\n";
+  }
+  
+  // Camino y costo
+  if (result.path_found) {
+    file << "Camino: ";
+    for (size_t i = 0; i < result.path.size(); ++i) {
+      file << "(" << result.path[i].row << "," << result.path[i].col << ")";
+      if (i < result.path.size() - 1) file << " - ";
+    }
+    file << "\n";
+    file << "--------------------------------------\n";
+    file << "Costo: " << std::fixed << std::setprecision(2) << result.total_cost << "\n";
+    file << "--------------------------------------\n\n";
+  }
+  
+  // Métricas generales finales
+  file << "=== RESULTADOS GENERALES ===\n";
+  file << "Resultado: " << (result.path_found ? "Camino encontrado" : "No se encontró camino") << "\n";
+  if (result.path_found) {
+    file << "Coste total: " << std::fixed << std::setprecision(2) << result.total_cost << "\n";
+    file << "Longitud del camino: " << result.path.size() << " casillas\n";
+  }
+  file << "Nodos generados: " << result.nodes_generated << "\n";
+  file << "Nodos inspeccionados: " << result.nodes_inspected << "\n";
+  
+  // Pasos realizados y métricas adicionales
+  if (is_dynamic && dynamic_result) {
+    file << "Pasos realizados: " << dynamic_result->total_steps << "\n";
+    
+    // Calcular proporción media de obstáculos para modo dinámico
+    double avg_obstacle_ratio = 0.0;
+    if (!dynamic_result->obstacle_ratios.empty()) {
+      for (double ratio : dynamic_result->obstacle_ratios) {
+        avg_obstacle_ratio += ratio;
+      }
+      avg_obstacle_ratio /= dynamic_result->obstacle_ratios.size();
+    }
+    file << "Proporción media de obstáculos: " << std::fixed << std::setprecision(1) 
+         << (avg_obstacle_ratio * 100) << "%\n";
+  } else {
+    // En modo estático, pasos realizados = longitud del camino - 1 (movimientos)
+    int static_steps = result.path_found ? (result.path.size() > 0 ? result.path.size() - 1 : 0) : 0;
+    file << "Pasos realizados: " << static_steps << "\n";
+    
+    // // Proporción de obstáculos para modo estático
+    // file << "Proporción media de obstáculos: " << std::fixed << std::setprecision(1) 
+    //      << (maze->GetObstacleRatio() * 100) << "%\n";
+  }
   
   file.close();
 }
@@ -94,7 +191,7 @@ int main(int argc, char* argv[]) {
   Position start = maze.GetStart();
   Position goal = maze.GetEnd();
   
-  std::cout << "=== ALGORITMO A* PARA LABERINTOS ===" << std::endl;
+  std::cout << "=== BÚSQUEDAS INFORMADAS - ALGORITMO A* ===" << std::endl;
   std::cout << "Archivo: " << filename << std::endl;
   std::cout << "Modo: " << (mode == 0 ? "Estático" : "Dinámico") << std::endl;
   std::cout << "Inicio: (" << start.row << "," << start.col << ")" << std::endl;
@@ -108,14 +205,14 @@ int main(int argc, char* argv[]) {
     
     // Guardar información detallada en archivo
     std::string output_file = "resultado_estatico_" + filename;
-    SaveStaticResultToFile(result, output_file, start, goal, &maze);
+    SaveResultToFile(result, output_file, filename, start, goal, &maze, false);
     
-    std::cout << "\nResultado:" << std::endl;
+    std::cout << "\nResultado: ";
     if (result.path_found) {
-      std::cout << "Camino encontrado - Costo: " << result.total_cost << std::endl;
-      std::cout << "Información detallada guardada en: " << output_file << std::endl;
-      std::cout << "\nLaberinto resuelto:" << std::endl;
+      std::cout << "Camino encontrado" << std::endl;
+      std::cout << "Coste: " << result.total_cost << std::endl;
       maze.Print(result.path);
+      std::cout << "Información detallada guardada en: " << output_file << "\n" << std::endl;
     } else {
       std::cout << "No se encontró camino al objetivo" << std::endl;
     }
@@ -127,20 +224,22 @@ int main(int argc, char* argv[]) {
     double pout = 0.5; // 50% probabilidad de liberar obstáculo
     
     DynamicEnvironment dynamic_env(&maze, pin, pout);
-    DynamicResult result = dynamic_env.ExecuteDynamic(start, goal, true); // Con visualización
+    DynamicResult dynamic_result = dynamic_env.ExecuteDynamic(start, goal, true); // Con visualización
     
-    // Guardar información detallada en archivo
+    // Convertir a formato AStarResult para usar la función unificada de guardado
+    AStarResult converted_result = ConvertDynamicToAStarResult(dynamic_result);
+    
+    // Guardar información detallada en archivo con el mismo formato
     std::string output_file = "resultado_dinamico_" + filename;
-    dynamic_env.SaveResultsToFile(result, output_file, start, goal);
+    SaveResultToFile(converted_result, output_file, filename, start, goal, &maze, true, &dynamic_result);
     
     std::cout << "\n=== RESUMEN FINAL ===" << std::endl;
-    std::cout << "Éxito: " << (result.success ? "SÍ" : "NO") << std::endl;
-    if (result.success) {
-      std::cout << "Pasos realizados: " << result.total_steps << std::endl;
-      std::cout << "Costo total: " << result.total_cost << std::endl;
+    std::cout << "Éxito: " << (dynamic_result.success ? "SÍ" : "NO") << std::endl;
+    if (dynamic_result.success) {
+      std::cout << "Pasos realizados: " << dynamic_result.total_steps << std::endl;
+      std::cout << "Coste total: " << dynamic_result.total_cost << std::endl;
     }
-    std::cout << "Replaneaciones: " << result.total_replans << std::endl;
-    std::cout << "Información detallada guardada en: " << output_file << std::endl;
+    std::cout << "Información detallada guardada en: " << output_file << "\n" << std::endl;
   }
   
   return 0;

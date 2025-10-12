@@ -175,7 +175,7 @@ void Maze::Print(const std::vector<Position>& path) const {
     }
   }
   
-  std::cout << "\nLaberinto actual:\n";
+  std::cout << "\nInformación del mapa (A = agente, * = camino):\n\n";
   for (int i = 0; i < rows_; ++i) {
     for (int j = 0; j < cols_; ++j) {
       if (display_grid[i][j] == -1) {
@@ -185,7 +185,7 @@ void Maze::Print(const std::vector<Position>& path) const {
       } else if (display_grid[i][j] == END) {
         std::cout << " E ";
       } else if (display_grid[i][j] == OBSTACLE) {
-        std::cout << " # ";
+        std::cout << " █ ";
       } else {
         std::cout << "   ";
       }
@@ -210,7 +210,7 @@ void Maze::PrintWithStep(const Position& current_pos, const std::vector<Position
     display_grid[current_pos.row][current_pos.col] = -2; // Posición actual
   }
   
-  std::cout << "\nPaso actual (A = agente, * = camino):\n";
+  std::cout << "\nInformación del mapa (A = agente, * = camino):\n";
   for (int i = 0; i < rows_; ++i) {
     for (int j = 0; j < cols_; ++j) {
       if (display_grid[i][j] == -2) {
@@ -222,7 +222,7 @@ void Maze::PrintWithStep(const Position& current_pos, const std::vector<Position
       } else if (display_grid[i][j] == END) {
         std::cout << " E ";
       } else if (display_grid[i][j] == OBSTACLE) {
-        std::cout << " # ";
+        std::cout << " █ ";
       } else {
         std::cout << "   ";
       }

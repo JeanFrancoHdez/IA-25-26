@@ -26,17 +26,15 @@ DynamicResult DynamicEnvironment::ExecuteDynamic(const Position& start, const Po
     std::cout << "\n=== INICIANDO EJECUCIÓN EN ENTORNO DINÁMICO ===\n";
     std::cout << "Desde: (" << start.row << "," << start.col << ")\n";
     std::cout << "Hasta: (" << goal.row << "," << goal.col << ")\n";
-    std::cout << "Probabilidades: pin=" << pin_ << ", pout=" << pout_ << "\n\n";
+    std::cout << "Probabilidades: pin = " << pin_ << ", pout = " << pout_ << "\n\n";
   }
   
   int consecutive_failures = 0;
   
   while (!(current_pos == goal) && consecutive_failures < max_failed_attempts_) {
     if (verbose) {
-      std::cout << "\n--- PASO " << (result.total_steps + 1) << " ---\n";
+      std::cout << "\n--- PLANIFICACIÓN " << (result.total_steps + 1) << " ---\n";
       std::cout << "Posición actual: (" << current_pos.row << "," << current_pos.col << ")\n";
-      std::cout << "Ratio de obstáculos: " << std::fixed << std::setprecision(3) 
-                << maze_->GetObstacleRatio() * 100 << "%\n";
     }
   
     result.obstacle_ratios.push_back(maze_->GetObstacleRatio());
@@ -44,7 +42,6 @@ DynamicResult DynamicEnvironment::ExecuteDynamic(const Position& start, const Po
     // Ejecutar A* desde posición actual (modo silencioso para entorno dinámico)
     AStarResult search_result = astar_->Search(current_pos, goal, false);
     result.individual_searches.push_back(search_result);
-    result.total_replans++;
   
     if (!search_result.path_found) {
       consecutive_failures++;
@@ -70,32 +67,30 @@ DynamicResult DynamicEnvironment::ExecuteDynamic(const Position& start, const Po
     consecutive_failures = 0;
   
     if (verbose) {
-      std::cout << "Camino encontrado! Longitud: " << search_result.path.size() 
-                << " Costo: " << search_result.total_cost << "\n";
+      std::cout << "Camino encontrado. Longitud: " << search_result.path.size() 
+                << ", Coste: " << search_result.total_cost << "\n";
       std::cout << "Iniciando navegación paso a paso...\n";
     }
   
-    // Ejecutar pasos del camino uno por uno
-    size_t step_index = 1; // Empezar desde el segundo elemento (el primero es la posición actual)
-  
-    while (step_index < search_result.path.size() && !(current_pos == goal)) {
-      // Mover al siguiente paso
-      Position next_pos = search_result.path[step_index];
+    // Ejecutar solo el primer paso del camino planificado
+    if (search_result.path.size() > 1) {
+      // Mover al siguiente paso (índice 1, ya que 0 es la posición actual)
+      Position next_pos = search_result.path[1];
       double step_cost = maze_->GetMovementCost(current_pos, next_pos);
-  
+
       current_pos = next_pos;
       result.complete_path.push_back(current_pos);
       result.total_cost += step_cost;
       result.total_steps++;
-  
+
       if (verbose) {
-        std::cout << "\n--- Movimiento #" << result.total_steps << " ---\n";
-        std::cout << "Posición: (" << current_pos.row << "," << current_pos.col 
-                  << ") - Costo paso: " << step_cost << "\n";
-        std::cout << "Costo acumulado: " << std::fixed << std::setprecision(1) << result.total_cost << "\n";
+        std::cout << "\n--- MOVIMIENTO " << result.total_steps << " ---\n";
+        std::cout << "Posición actualizada: (" << current_pos.row << "," << current_pos.col << ")\n";
+        std::cout << "Coste del paso: " << step_cost << "\n";
+        std::cout << "Coste acumulado: " << std::fixed << std::setprecision(1) << result.total_cost << "\n";
         maze_->PrintWithStep(current_pos, search_result.path);
       }
-  
+
       // Si llegamos al objetivo, terminar
       if (current_pos == goal) {
         result.success = true;
@@ -104,35 +99,19 @@ DynamicResult DynamicEnvironment::ExecuteDynamic(const Position& start, const Po
         }
         break;
       }
-  
+
       // Actualizar entorno dinámico después del paso
       maze_->UpdateDynamicEnvironment(pin_, pout_);
-  
-      // Verificar si el siguiente paso en el plan sigue siendo válido
-      if (step_index + 1 < search_result.path.size()) {
-        Position next_planned = search_result.path[step_index + 1];
-        if (!maze_->IsFree(next_planned.row, next_planned.col)) {
-          if (verbose) {
-            std::cout << "¡El camino planeado está bloqueado! Replaneando desde posición actual...\n";
-          }
-          break; // Salir del bucle para replanear
-        }
+      
+      if (verbose) {
+        std::cout << "Entorno actualizado. Replanteando desde posición actual...\n";
       }
-  
-      step_index++;
     }
   }
   
   result.failed_attempts = consecutive_failures;
   
-  if (verbose) {
-    std::cout << "\n=== EJECUCIÓN COMPLETADA ===\n";
-    std::cout << "Éxito: " << (result.success ? "SÍ" : "NO") << "\n";
-    std::cout << "Pasos totales: " << result.total_steps << "\n";
-    std::cout << "Costo total: " << std::fixed << std::setprecision(1) << result.total_cost << "\n";
-    std::cout << "Replaneaciones: " << result.total_replans << "\n";
-    std::cout << "Intentos fallidos: " << result.failed_attempts << "\n";
-  }
+
   
   return result;
 }
@@ -150,9 +129,7 @@ std::string DynamicEnvironment::GenerateCompleteReport(const DynamicResult& resu
   oss << "Resultados generales:\n";
   oss << "  Éxito: " << (result.success ? "SÍ" : "NO") << "\n";
   oss << "  Pasos realizados: " << result.total_steps << "\n";
-  oss << "  Costo total acumulado: " << std::fixed << std::setprecision(1) << result.total_cost << "\n";
-  oss << "  Número de replaneaciones: " << result.total_replans << "\n";
-  oss << "  Intentos fallidos consecutivos: " << result.failed_attempts << "\n\n";
+  oss << "  Costo total acumulado: " << std::fixed << std::setprecision(1) << result.total_cost << "\n\n";
   
   // Métricas agregadas
   int total_nodes_generated = 0;

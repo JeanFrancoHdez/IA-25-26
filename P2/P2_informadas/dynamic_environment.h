@@ -11,12 +11,11 @@ struct DynamicResult {
   std::vector<Position> complete_path;  // Camino completo realizado
   double total_cost;
   int total_steps;
-  int total_replans;                    // Número de replaneaciones
   int failed_attempts;                  // Intentos fallidos consecutivos
   std::vector<AStarResult> individual_searches;  // Resultados de cada búsqueda A*
   std::vector<double> obstacle_ratios;  // Ratio de obstáculos en cada paso
   
-  DynamicResult() : success(false), total_cost(0.0), total_steps(0), total_replans(0), failed_attempts(0) {}
+  DynamicResult() : success(false), total_cost(0.0), total_steps(0), failed_attempts(0) {}
 };
 
 class DynamicEnvironment {

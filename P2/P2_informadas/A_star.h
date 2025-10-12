@@ -8,6 +8,13 @@
 #include <vector>
 #include <string>
 
+// Información por iteración
+struct IterationInfo {
+  int iteration;
+  std::vector<Position> generated_nodes;
+  std::vector<Position> inspected_nodes;
+};
+
 // Estructura para el resultado de A*
 struct AStarResult {
   bool path_found;
@@ -16,6 +23,7 @@ struct AStarResult {
   int nodes_generated;
   int nodes_inspected;
   int iterations;
+  std::vector<IterationInfo> iteration_details;
   
   AStarResult() : path_found(false), total_cost(0.0), nodes_generated(0), nodes_inspected(0), iterations(0) {}
 };

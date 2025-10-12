@@ -13,7 +13,7 @@ SOURCES = main_P2_astar.cc maze.cc A_star.cc A_star_node.cc dynamic_environment.
 OBJECTS = $(SOURCES:%.cc=$(OBJDIR)/%.o)
 
 # Archivo ejecutable
-TARGET = astar_laberintos
+TARGET = informadas
 
 # Regla principal
 all: $(TARGET)
