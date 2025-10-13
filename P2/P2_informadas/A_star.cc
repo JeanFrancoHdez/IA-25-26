@@ -33,11 +33,10 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
   while (!open_list_.empty()) {
     iterations_++;
   
-    // Capturar estado actual para el registro de iteración
     IterationInfo iter_info;
     iter_info.iteration = iterations_;
     
-    // Capturar nodos generados (open + closed)
+    // Capturar nodos generados
     std::vector<Position> generated_nodes;
     for (const auto& pair : open_map_) {
       generated_nodes.push_back(pair.second->GetPosition());
@@ -47,26 +46,23 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
     }
     iter_info.generated_nodes = generated_nodes;
     
-    // Capturar nodos inspeccionados (closed_list)
+    // Capturar nodos inspeccionados
     std::vector<Position> inspected_nodes;
     for (const auto& pair : closed_list_) {
       inspected_nodes.push_back(pair.second->GetPosition());
     }
     iter_info.inspected_nodes = inspected_nodes;
   
-    // Seleccionar nodo with menor f(n)
     auto current = open_list_.top();
     open_list_.pop();
   
     Position current_pos = current->GetPosition();
     int current_key = PositionToKey(current_pos);
   
-    // Remover de open_map y añadir a closed_list
     open_map_.erase(current_key);
     closed_list_[current_key] = current;
     nodes_inspected_++;
     
-    // Guardar información de iteración DESPUÉS de procesar
     result.iteration_details.push_back(iter_info);
   
     if (verbose) {
@@ -76,7 +72,6 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
                 << " g=" << current->GetGCost() << " h=" << current->GetHCost() << std::endl;
     }
   
-    // Verificar si hemos llegado al objetivo
     if (current_pos == goal) {
       result.path_found = true;
       result.path = ReconstructPath(current);
@@ -86,26 +81,22 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
       result.iterations = iterations_;
   
       if (verbose) {
-        std::cout << "¡Camino encontrado! Costo total: " << result.total_cost << std::endl;
+        std::cout << "¡Camino encontrado! Coste total: " << result.total_cost << std::endl;
       }
       return result;
     }
   
-    // Expandir vecinos
     auto neighbors = maze_->GetNeighbors(current_pos);
     for (const auto& neighbor_pos : neighbors) {
       int neighbor_key = PositionToKey(neighbor_pos);
   
-      // Si ya está en la lista cerrada, ignorar
       if (IsInClosedList(neighbor_pos)) {
         continue;
       }
   
-      // Calcular nuevo g(n)
       double movement_cost = maze_->GetMovementCost(current_pos, neighbor_pos);
       double new_g_cost = current->GetGCost() + movement_cost;
   
-      // Si no está en la lista abierta, añadirlo
       if (!IsInOpenList(neighbor_pos)) {
         double h_cost = maze_->ManhattanHeuristic(neighbor_pos);
         auto neighbor_node = std::make_shared<AStarNode>(neighbor_pos, current, new_g_cost, h_cost);
@@ -119,8 +110,8 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
                     << ") f=" << neighbor_node->GetFCost() 
                     << " g=" << new_g_cost << " h=" << h_cost << std::endl;
         }
+        
       } else {
-        // Si ya está en la lista abierta, verificar si este camino es mejor
         auto existing_node = GetFromOpenList(neighbor_pos);
         if (existing_node && new_g_cost < existing_node->GetGCost()) {
           existing_node->SetGCost(new_g_cost);
@@ -130,15 +121,11 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
             std::cout << "  Actualizando (" << neighbor_pos.row << "," << neighbor_pos.col 
                       << ") nuevo g=" << new_g_cost << " f=" << existing_node->GetFCost() << std::endl;
           }
-  
-          // Nota: En una implementación más eficiente, deberíamos reorganizar la priority_queue
-          // Por simplicidad, mantenemos el nodo actualizado en open_map_
         }
       }
     }
   }
   
-  // No se encontró camino
   result.nodes_generated = nodes_generated_;
   result.nodes_inspected = nodes_inspected_;
   result.iterations = iterations_;
@@ -173,7 +160,6 @@ double AStar::CalculatePathCost(const std::vector<Position>& path) const {
 }
 
 void AStar::Reset() {
-  // Limpiar estructuras
   while (!open_list_.empty()) {
     open_list_.pop();
   }
@@ -201,29 +187,4 @@ bool AStar::IsInClosedList(const Position& pos) const {
 std::shared_ptr<AStarNode> AStar::GetFromOpenList(const Position& pos) {
   auto it = open_map_.find(PositionToKey(pos));
   return (it != open_map_.end()) ? it->second : nullptr;
-}
-
-std::string AStar::GenerateReport(const AStarResult& result, const Position& start, const Position& goal) const {
-  std::ostringstream oss;
-  oss << "=== Reporte A* ===\n";
-  oss << "Desde: (" << start.row << "," << start.col << ")\n";
-  oss << "Hasta: (" << goal.row << "," << goal.col << ")\n";
-  oss << "Camino encontrado: " << (result.path_found ? "Sí" : "No") << "\n";
-  
-  if (result.path_found) {
-    oss << "Costo total: " << std::fixed << std::setprecision(1) << result.total_cost << "\n";
-    oss << "Longitud del camino: " << result.path.size() << " casillas\n";
-    oss << "Camino: ";
-    for (size_t i = 0; i < result.path.size(); ++i) {
-      oss << "(" << result.path[i].row << "," << result.path[i].col << ")";
-      if (i < result.path.size() - 1) oss << " -> ";
-    }
-    oss << "\n";
-  }
-  
-  oss << "Nodos generados: " << result.nodes_generated << "\n";
-  oss << "Nodos inspeccionados: " << result.nodes_inspected << "\n";
-  oss << "Iteraciones: " << result.iterations << "\n";
-  
-  return oss.str();
 }

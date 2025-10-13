@@ -7,14 +7,13 @@
 #include <iomanip>
 #include <cstdlib>
 
-// Función para convertir DynamicResult en AStarResult agregado
+// Función para convertir el formato de una búsqueda dinámica
 AStarResult ConvertDynamicToAStarResult(const DynamicResult& dynamic_result) {
   AStarResult combined_result;
   combined_result.path_found = dynamic_result.success;
   combined_result.path = dynamic_result.complete_path;
   combined_result.total_cost = dynamic_result.total_cost;
   
-  // Combinar todas las iteraciones de todas las búsquedas
   int iteration_counter = 0;
   for (const auto& search : dynamic_result.individual_searches) {
     for (const auto& iter : search.iteration_details) {
@@ -42,7 +41,7 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
     return;
   }
   
-  // Tabla inicial con información básica
+  // Confeccionar la tabla de resultados
   file << "Búsqueda A*. Función heurística h(·)\n";
   file << std::setw(12) << "Instancia" << std::setw(5) << "n" << std::setw(5) << "m" 
        << std::setw(8) << "S" << std::setw(8) << "E" << std::setw(15) << "Camino" 
@@ -58,7 +57,6 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
   file << std::setw(12) << result.nodes_generated;
   file << std::setw(12) << result.nodes_inspected << "\n\n";
   
-  // Laberinto resuelto (redirigir cout a file)
   file << "\nLaberinto " << (is_dynamic ? "dinámico" : "estático") << " resuelto.";
   
   // Capturar la salida del laberinto
@@ -81,7 +79,6 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
   file << "Punto meta: (" << goal.row << "," << goal.col << ")\n";
   file << "--------------------------------------\n";
   
-  // Iteraciones con nodos generados e inspeccionados
   for (const auto& iter : result.iteration_details) {
     file << "Iteración " << iter.iteration << "\n";
     
@@ -105,7 +102,6 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
     file << "--------------------------------------\n";
   }
   
-  // Camino y costo
   if (result.path_found) {
     file << "Camino: ";
     for (size_t i = 0; i < result.path.size(); ++i) {
@@ -118,7 +114,6 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
     file << "--------------------------------------\n\n";
   }
   
-  // Métricas generales finales
   file << "=== RESULTADOS GENERALES ===\n";
   file << "Resultado: " << (result.path_found ? "Camino encontrado" : "No se encontró camino") << "\n";
   if (result.path_found) {
@@ -128,7 +123,6 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
   file << "Nodos generados: " << result.nodes_generated << "\n";
   file << "Nodos inspeccionados: " << result.nodes_inspected << "\n";
   
-  // Pasos realizados y métricas adicionales
   if (is_dynamic && dynamic_result) {
     file << "Pasos realizados: " << dynamic_result->total_steps << "\n";
     
@@ -143,7 +137,6 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
     file << "Proporción media de obstáculos: " << std::fixed << std::setprecision(1) 
          << (avg_obstacle_ratio * 100) << "%\n";
   } else {
-    // En modo estático, pasos realizados = longitud del camino - 1 (movimientos)
     int static_steps = result.path_found ? (result.path.size() > 0 ? result.path.size() - 1 : 0) : 0;
     file << "Pasos realizados: " << static_steps << "\n";
     
@@ -166,7 +159,6 @@ void ShowUsage(const std::string& program_name) {
 }
 
 int main(int argc, char* argv[]) {
-  // Verificar argumentos de línea de comandos
   if (argc != 3) {
     ShowUsage(argv[0]);
     return 1;
@@ -181,7 +173,6 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   
-  // Cargar laberinto
   Maze maze;
   if (!maze.LoadFromFile(filename)) {
     std::cerr << "Error al cargar el laberinto desde " << filename << std::endl;
@@ -199,7 +190,6 @@ int main(int argc, char* argv[]) {
   std::cout << std::string(50, '=') << std::endl;
   
   if (mode == 0) {
-    // MODO ESTÁTICO
     AStar astar(&maze);
     AStarResult result = astar.Search(start, goal, false); // Sin verbose
     
@@ -218,13 +208,11 @@ int main(int argc, char* argv[]) {
     }
     
   } else {
-    // MODO DINÁMICO
-    // Configuración por defecto para dinámico
-    double pin = 0.5;  // 50% probabilidad de crear obstáculo
-    double pout = 0.5; // 50% probabilidad de liberar obstáculo
+    double pin = 0.5;  // 50% probabilidad de convertir casilla en obstáculo
+    double pout = 0.5; // 50% probabilidad de liberar un obstaculo
     
     DynamicEnvironment dynamic_env(&maze, pin, pout);
-    DynamicResult dynamic_result = dynamic_env.ExecuteDynamic(start, goal, true); // Con visualización
+    DynamicResult dynamic_result = dynamic_env.ExecuteDynamic(start, goal, true);
     
     // Convertir a formato AStarResult para usar la función unificada de guardado
     AStarResult converted_result = ConvertDynamicToAStarResult(dynamic_result);

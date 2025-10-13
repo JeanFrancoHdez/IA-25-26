@@ -8,14 +8,12 @@
 #include <vector>
 #include <string>
 
-// Información por iteración
 struct IterationInfo {
   int iteration;
   std::vector<Position> generated_nodes;
   std::vector<Position> inspected_nodes;
 };
 
-// Estructura para el resultado de A*
 struct AStarResult {
   bool path_found;
   std::vector<Position> path;
@@ -33,23 +31,17 @@ class AStar {
     AStar(Maze* maze);
     ~AStar();
   
-    // Búsqueda A*
     AStarResult Search(const Position& start, const Position& goal, bool verbose = true);
-  
-    // Generar reporte detallado
-    std::string GenerateReport(const AStarResult& result, const Position& start, const Position& goal) const;
   
   private:
     Maze* maze_;
   
-    // Listas abierta y cerrada
     std::priority_queue<std::shared_ptr<AStarNode>, 
     std::vector<std::shared_ptr<AStarNode>>, 
     AStarNodeComparator> open_list_;
     std::unordered_map<int, std::shared_ptr<AStarNode>> closed_list_;
-    std::unordered_map<int, std::shared_ptr<AStarNode>> open_map_; // Para búsqueda rápida en lista abierta
+    std::unordered_map<int, std::shared_ptr<AStarNode>> open_map_;
   
-    // Métricas
     int nodes_generated_;
     int nodes_inspected_;
     int iterations_;
