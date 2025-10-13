@@ -85,7 +85,7 @@ DynamicResult DynamicEnvironment::ExecuteDynamic(const Position& start, const Po
         std::cout << "Posición actualizada: (" << current_pos.row << "," << current_pos.col << ")\n";
         std::cout << "Coste del paso: " << step_cost << "\n";
         std::cout << "Coste acumulado: " << std::fixed << std::setprecision(1) << result.total_cost << "\n";
-        maze_->PrintWithStep(current_pos, result.complete_path);
+        maze_->PrintWithTwoPaths(current_pos, result.complete_path, search_result.path);
       }
 
       if (current_pos == goal) {

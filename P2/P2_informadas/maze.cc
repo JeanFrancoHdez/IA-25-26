@@ -186,26 +186,37 @@ void Maze::Print(const std::vector<Position>& path) const {
   std::cout << std::endl;
 }
 
-void Maze::PrintWithStep(const Position& current_pos, const std::vector<Position>& path) const {
+void Maze::PrintWithTwoPaths(const Position& current_pos, const std::vector<Position>& completed_path, const std::vector<Position>& planned_path) const {
   auto display_grid = grid_;
   
-  for (const auto& pos : path) {
+  // Marcar camino planificado con valor -3 (se mostrará como +)
+  for (const auto& pos : planned_path) {
+    if (pos != start_ && pos != end_) {
+      display_grid[pos.row][pos.col] = -3;
+    }
+  }
+  
+  // Marcar camino completado con valor -1 (se mostrará como *, tiene prioridad sobre planificado)
+  for (const auto& pos : completed_path) {
     if (pos != start_ && pos != end_) {
       display_grid[pos.row][pos.col] = -1;
     }
   }
   
+  // Marcar posición actual del agente
   if (current_pos != start_ && current_pos != end_) {
     display_grid[current_pos.row][current_pos.col] = -2;
   }
   
-  std::cout << "\nInformación del mapa (A = agente, * = camino):\n";
+  std::cout << "\nInformación del mapa (A = agente, * = camino recorrido, + = camino planificado):\n";
   for (int i = 0; i < rows_; ++i) {
     for (int j = 0; j < cols_; ++j) {
       if (display_grid[i][j] == -2) {
         std::cout << " A ";
       } else if (display_grid[i][j] == -1) {
         std::cout << " * ";
+      } else if (display_grid[i][j] == -3) {
+        std::cout << " + ";
       } else if (display_grid[i][j] == START) {
         std::cout << " S ";
       } else if (display_grid[i][j] == END) {

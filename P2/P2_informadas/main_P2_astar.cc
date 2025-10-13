@@ -139,10 +139,6 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
   } else {
     int static_steps = result.path_found ? (result.path.size() > 0 ? result.path.size() - 1 : 0) : 0;
     file << "Pasos realizados: " << static_steps << "\n";
-    
-    // // Proporción de obstáculos para modo estático
-    // file << "Proporción media de obstáculos: " << std::fixed << std::setprecision(1) 
-    //      << (maze->GetObstacleRatio() * 100) << "%\n";
   }
   
   file.close();
@@ -181,6 +177,58 @@ int main(int argc, char* argv[]) {
   
   Position start = maze.GetStart();
   Position goal = maze.GetEnd();
+  
+  char respuesta_entrada, respuesta_salida;
+  
+  std::cout << "¿Desea cambiar las coordenadas de entrada? (s/n): ";
+  std::cin >> respuesta_entrada;
+  
+  if (respuesta_entrada == 's' || respuesta_entrada == 'S') {
+    int start_row, start_col;
+    std::cout << "Introduzca las coordenadas de entrada (fila columna): ";
+    std::cin >> start_row >> start_col;
+    
+    bool is_on_border = (start_row == 0 || start_row == maze.GetRows() - 1 || start_col == 0 || start_col == maze.GetCols() - 1);
+    
+    if (maze.IsValidPosition(start_row, start_col) && is_on_border) {
+      int new_value = maze.GetCell(start_row, start_col);
+      
+      maze.SetCell(start.row, start.col, new_value);
+      maze.SetCell(start_row, start_col, Maze::START);
+      
+      start.row = start_row;
+      start.col = start_col;
+      std::cout << "Coordenadas de entrada actualizadas correctamente." << std::endl;
+    } else {
+      std::cout << "Coordenadas de entrada inválidas (debe estar en el borde del mapa). Se mantendrá la original." << std::endl;
+    }
+  }
+  
+  std::cout << "¿Desea cambiar las coordenadas de salida? (s/n): ";
+  std::cin >> respuesta_salida;
+  
+  if (respuesta_salida == 's' || respuesta_salida == 'S') {
+    int goal_row, goal_col;
+    std::cout << "Introduzca las coordenadas de salida (fila columna): ";
+    std::cin >> goal_row >> goal_col;
+    
+    bool is_on_border = (goal_row == 0 || goal_row == maze.GetRows() - 1 || goal_col == 0 || goal_col == maze.GetCols() - 1);
+    
+    if (maze.IsValidPosition(goal_row, goal_col) && is_on_border) {
+      int new_value = maze.GetCell(goal_row, goal_col);
+      
+      maze.SetCell(goal.row, goal.col, new_value);
+      maze.SetCell(goal_row, goal_col, Maze::END);
+      
+      goal.row = goal_row;
+      goal.col = goal_col;
+      std::cout << "Coordenadas de salida actualizadas correctamente." << std::endl;
+    } else {
+      std::cout << "Coordenadas de salida inválidas (debe estar en el borde del mapa). Se mantendrá la original." << std::endl;
+    }
+  }
+  
+  std::cout << std::endl;
   
   std::cout << "=== BÚSQUEDAS INFORMADAS - ALGORITMO A* ===" << std::endl;
   std::cout << "Archivo: " << filename << std::endl;

@@ -55,7 +55,7 @@ class Maze {
     double ManhattanHeuristic(const Position& pos, double weight = 3.0) const;
   
     void Print(const std::vector<Position>& path = {}) const;
-    void PrintWithStep(const Position& current_pos, const std::vector<Position>& path = {}) const;
+    void PrintWithTwoPaths(const Position& current_pos, const std::vector<Position>& completed_path, const std::vector<Position>& planned_path) const;
   
     void UpdateDynamicEnvironment(double pin, double pout);
     double GetObstacleRatio() const;
