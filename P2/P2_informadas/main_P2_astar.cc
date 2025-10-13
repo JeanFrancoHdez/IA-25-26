@@ -7,34 +7,9 @@
 #include <iomanip>
 #include <cstdlib>
 
-// Función para convertir el formato de una búsqueda dinámica
-AStarResult ConvertDynamicToAStarResult(const DynamicResult& dynamic_result) {
-  AStarResult combined_result;
-  combined_result.path_found = dynamic_result.success;
-  combined_result.path = dynamic_result.complete_path;
-  combined_result.total_cost = dynamic_result.total_cost;
-  
-  int iteration_counter = 0;
-  for (const auto& search : dynamic_result.individual_searches) {
-    for (const auto& iter : search.iteration_details) {
-      IterationInfo combined_iter;
-      combined_iter.iteration = ++iteration_counter;
-      combined_iter.generated_nodes = iter.generated_nodes;
-      combined_iter.inspected_nodes = iter.inspected_nodes;
-      combined_result.iteration_details.push_back(combined_iter);
-    }
-    combined_result.nodes_generated += search.nodes_generated;
-    combined_result.nodes_inspected += search.nodes_inspected;
-    combined_result.iterations += search.iterations;
-  }
-  
-  return combined_result;
-}
-
 void SaveResultToFile(const AStarResult& result, const std::string& filename, 
                      const std::string& original_filename, const Position& start, 
-                     const Position& goal, const Maze* maze, bool is_dynamic = false, 
-                     const DynamicResult* dynamic_result = nullptr) {
+                     const Position& goal, const Maze* maze) {
   std::ofstream file(filename);
   if (!file.is_open()) {
     std::cerr << "Error: No se puede crear el archivo " << filename << std::endl;
@@ -57,7 +32,7 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
   file << std::setw(12) << result.nodes_generated;
   file << std::setw(12) << result.nodes_inspected << "\n\n";
   
-  file << "\nLaberinto " << (is_dynamic ? "dinámico" : "estático") << " resuelto.";
+  file << "\nLaberinto estático resuelto.";
   
   // Capturar la salida del laberinto
   std::streambuf* cout_backup = std::cout.rdbuf();
@@ -123,23 +98,8 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
   file << "Nodos generados: " << result.nodes_generated << "\n";
   file << "Nodos inspeccionados: " << result.nodes_inspected << "\n";
   
-  if (is_dynamic && dynamic_result) {
-    file << "Pasos realizados: " << dynamic_result->total_steps << "\n";
-    
-    // Calcular proporción media de obstáculos para modo dinámico
-    double avg_obstacle_ratio = 0.0;
-    if (!dynamic_result->obstacle_ratios.empty()) {
-      for (double ratio : dynamic_result->obstacle_ratios) {
-        avg_obstacle_ratio += ratio;
-      }
-      avg_obstacle_ratio /= dynamic_result->obstacle_ratios.size();
-    }
-    file << "Proporción media de obstáculos: " << std::fixed << std::setprecision(1) 
-         << (avg_obstacle_ratio * 100) << "%\n";
-  } else {
-    int static_steps = result.path_found ? (result.path.size() > 0 ? result.path.size() - 1 : 0) : 0;
-    file << "Pasos realizados: " << static_steps << "\n";
-  }
+  int static_steps = result.path_found ? (result.path.size() > 0 ? result.path.size() - 1 : 0) : 0;
+  file << "Pasos realizados: " << static_steps << "\n";
   
   file.close();
 }
@@ -243,39 +203,21 @@ int main(int argc, char* argv[]) {
     
     // Guardar información detallada en archivo
     std::string output_file = "resultado_estatico_" + filename;
-    SaveResultToFile(result, output_file, filename, start, goal, &maze, false);
+    SaveResultToFile(result, output_file, filename, start, goal, &maze);
     
-    std::cout << "\nResultado: ";
-    if (result.path_found) {
-      std::cout << "Camino encontrado" << std::endl;
-      std::cout << "Coste: " << result.total_cost << std::endl;
-      maze.Print(result.path);
-      std::cout << "Información detallada guardada en: " << output_file << "\n" << std::endl;
-    } else {
-      std::cout << "No se encontró camino al objetivo" << std::endl;
-    }
+    std::cout << "\nInformación detallada guardada en: " << output_file << "\n" << std::endl;
     
   } else {
     double pin = 0.5;  // 50% probabilidad de convertir casilla en obstáculo
     double pout = 0.5; // 50% probabilidad de liberar un obstaculo
     
     DynamicEnvironment dynamic_env(&maze, pin, pout);
-    DynamicResult dynamic_result = dynamic_env.ExecuteDynamic(start, goal, true);
     
-    // Convertir a formato AStarResult para usar la función unificada de guardado
-    AStarResult converted_result = ConvertDynamicToAStarResult(dynamic_result);
-    
-    // Guardar información detallada en archivo con el mismo formato
+    // Ejecutar solo para generar el archivo (sin salida por pantalla)
     std::string output_file = "resultado_dinamico_" + filename;
-    SaveResultToFile(converted_result, output_file, filename, start, goal, &maze, true, &dynamic_result);
+    dynamic_env.ExecuteDynamicToFile(start, goal, output_file, filename);
     
-    std::cout << "\n=== RESUMEN FINAL ===" << std::endl;
-    std::cout << "Éxito: " << (dynamic_result.success ? "SÍ" : "NO") << std::endl;
-    if (dynamic_result.success) {
-      std::cout << "Pasos realizados: " << dynamic_result.total_steps << std::endl;
-      std::cout << "Coste total: " << dynamic_result.total_cost << std::endl;
-    }
-    std::cout << "Información detallada guardada en: " << output_file << "\n" << std::endl;
+    std::cout << "\nInformación detallada guardada en: " << output_file << "\n" << std::endl;
   }
   
   return 0;

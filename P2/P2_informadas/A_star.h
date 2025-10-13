@@ -54,7 +54,6 @@ class AStar {
     bool IsInOpenList(const Position& pos) const;
     bool IsInClosedList(const Position& pos) const;
     std::shared_ptr<AStarNode> GetFromOpenList(const Position& pos);
-    void UpdateOpenList(std::shared_ptr<AStarNode> node);
 };
 
 #endif

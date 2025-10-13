@@ -5,6 +5,7 @@
 #include "A_star.h"
 #include <vector>
 #include <string>
+#include <fstream>
 
 struct DynamicResult {
   bool success;
@@ -23,10 +24,7 @@ class DynamicEnvironment {
     DynamicEnvironment(Maze* maze, double pin, double pout);
     ~DynamicEnvironment();
   
-    DynamicResult ExecuteDynamic(const Position& start, const Position& goal, bool verbose = true);
-  
-    void SetProbabilities(double pin, double pout);
-    void SetMaxFailedAttempts(int max_attempts) { max_failed_attempts_ = max_attempts; }
+    DynamicResult ExecuteDynamicToFile(const Position& start, const Position& goal, const std::string& filename, const std::string& original_filename);
 
   private:
     Maze* maze_;
