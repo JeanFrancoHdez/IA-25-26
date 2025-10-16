@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <random>
 #include <iomanip>
+#include <cmath>
 
 Maze::Maze() : rows_(0), cols_(0), start_(0, 0), end_(0, 0) {}
 
@@ -157,7 +158,13 @@ double Maze::ManhattanHeuristic(const Position& pos, double weight) const {
   return (abs(end_.row - pos.row) + abs(end_.col - pos.col)) * weight;
 }
 
-void Maze::Print(const std::vector<Position>& path) const {
+double Maze::EuclideanHeuristic(const Position& pos, double weight) const {
+  double dx = end_.col - pos.col;
+  double dy = end_.row - pos.row;
+  return sqrt(dx * dx + dy * dy) * weight;
+}
+
+void Maze::Print(const std::vector<Position>& path, std::ostream& output) const {
   auto display_grid = grid_;
   
   for (const auto& pos : path) {
@@ -166,27 +173,27 @@ void Maze::Print(const std::vector<Position>& path) const {
     }
   }
   
-  std::cout << "\nInformación del mapa (* = camino):\n\n";
+  output << "\nInformacion del mapa (* = camino):\n\n";
   for (int i = 0; i < rows_; ++i) {
     for (int j = 0; j < cols_; ++j) {
       if (display_grid[i][j] == -1) {
-        std::cout << " * ";
+        output << " * ";
       } else if (display_grid[i][j] == START) {
-        std::cout << " S ";
+        output << " S ";
       } else if (display_grid[i][j] == END) {
-        std::cout << " E ";
+        output << " E ";
       } else if (display_grid[i][j] == OBSTACLE) {
-        std::cout << " █ ";
+        output << " █ ";
       } else {
-        std::cout << "   ";
+        output << "   ";
       }
     }
-    std::cout << std::endl;
+    output << "\n";
   }
-  std::cout << std::endl;
+  output << "\n";
 }
 
-void Maze::PrintWithTwoPaths(const Position& current_pos, const std::vector<Position>& completed_path, const std::vector<Position>& planned_path) const {
+void Maze::PrintWithTwoPaths(const Position& current_pos, const std::vector<Position>& completed_path, const std::vector<Position>& planned_path, std::ostream& output) const {
   auto display_grid = grid_;
   
   for (const auto& pos : planned_path) {
@@ -205,28 +212,28 @@ void Maze::PrintWithTwoPaths(const Position& current_pos, const std::vector<Posi
     display_grid[current_pos.row][current_pos.col] = -2;
   }
   
-  std::cout << "\nInformación del mapa (A = agente, * = camino recorrido, + = camino planificado):\n\n";
+  output << "\nInformacion del mapa (A = agente, * = camino recorrido, + = camino planificado):\n\n";
   for (int i = 0; i < rows_; ++i) {
     for (int j = 0; j < cols_; ++j) {
       if (display_grid[i][j] == -2) {
-        std::cout << " A ";
+        output << " A ";
       } else if (display_grid[i][j] == -1) {
-        std::cout << " * ";
+        output << " * ";
       } else if (display_grid[i][j] == -3) {
-        std::cout << " + ";
+        output << " + ";
       } else if (display_grid[i][j] == START) {
-        std::cout << " S ";
+        output << " S ";
       } else if (display_grid[i][j] == END) {
-        std::cout << " E ";
+        output << " E ";
       } else if (display_grid[i][j] == OBSTACLE) {
-        std::cout << " █ ";
+        output << " █ ";
       } else {
-        std::cout << "   ";
+        output << " · ";
       }
     }
-    std::cout << std::endl;
+    output << "\n";
   }
-  std::cout << std::endl;
+  output << "\n";
 }
 
 void Maze::UpdateDynamicEnvironment(double pin, double pout) {

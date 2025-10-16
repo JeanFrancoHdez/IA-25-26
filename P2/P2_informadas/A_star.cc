@@ -4,7 +4,8 @@
 #include <sstream>
 #include <algorithm>
 
-AStar::AStar(Maze* maze) : maze_(maze), nodes_generated_(0), nodes_inspected_(0), iterations_(0) {}
+AStar::AStar(Maze* maze, char heuristic) 
+  : maze_(maze), heuristic_(heuristic), nodes_generated_(0), nodes_inspected_(0), iterations_(0) {}
 
 AStar::~AStar() {}
 
@@ -18,7 +19,7 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
   }
   
   // Crear nodo inicial
-  double h_start = maze_->ManhattanHeuristic(start);
+  double h_start = CalculateHeuristic(start);
   auto start_node = std::make_shared<AStarNode>(start, nullptr, 0.0, h_start);
   
   open_list_.push(start_node);
@@ -98,7 +99,7 @@ AStarResult AStar::Search(const Position& start, const Position& goal, bool verb
       double new_g_cost = current->GetGCost() + movement_cost;
   
       if (!IsInOpenList(neighbor_pos)) {
-        double h_cost = maze_->ManhattanHeuristic(neighbor_pos);
+        double h_cost = CalculateHeuristic(neighbor_pos);
         auto neighbor_node = std::make_shared<AStarNode>(neighbor_pos, current, new_g_cost, h_cost);
     
         open_list_.push(neighbor_node);
@@ -170,6 +171,13 @@ void AStar::Reset() {
   nodes_generated_ = 0;
   nodes_inspected_ = 0;
   iterations_ = 0;
+}
+
+double AStar::CalculateHeuristic(const Position& pos) const {
+  if (heuristic_ == 'b') {
+    return maze_->EuclideanHeuristic(pos);
+  }
+  return maze_->ManhattanHeuristic(pos);
 }
 
 int AStar::PositionToKey(const Position& pos) const {

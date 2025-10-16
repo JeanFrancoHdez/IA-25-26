@@ -28,13 +28,14 @@ struct AStarResult {
 
 class AStar {
   public:
-    AStar(Maze* maze);
+    AStar(Maze* maze, char heuristic = 'a');
     ~AStar();
   
     AStarResult Search(const Position& start, const Position& goal, bool verbose = true);
   
   private:
     Maze* maze_;
+    char heuristic_;
   
     std::priority_queue<std::shared_ptr<AStarNode>, 
     std::vector<std::shared_ptr<AStarNode>>, 
@@ -49,6 +50,7 @@ class AStar {
     // Funciones auxiliares
     std::vector<Position> ReconstructPath(std::shared_ptr<AStarNode> goal_node) const;
     double CalculatePathCost(const std::vector<Position>& path) const;
+    double CalculateHeuristic(const Position& pos) const;
     void Reset();
     int PositionToKey(const Position& pos) const;
     bool IsInOpenList(const Position& pos) const;

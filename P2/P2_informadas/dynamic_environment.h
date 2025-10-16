@@ -21,7 +21,7 @@ struct DynamicResult {
 
 class DynamicEnvironment {
   public:
-    DynamicEnvironment(Maze* maze, double pin, double pout);
+    DynamicEnvironment(Maze* maze, double pin, double pout, char heuristic = 'a');
     ~DynamicEnvironment();
   
     DynamicResult ExecuteDynamicToFile(const Position& start, const Position& goal, const std::string& filename, const std::string& original_filename);

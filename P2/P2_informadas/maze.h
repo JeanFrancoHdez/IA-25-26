@@ -53,9 +53,10 @@ class Maze {
     int GetMovementCost(const Position& from, const Position& to) const;
   
     double ManhattanHeuristic(const Position& pos, double weight = 3.0) const;
+    double EuclideanHeuristic(const Position& pos, double weight = 3.0) const;
   
-    void Print(const std::vector<Position>& path = {}) const;
-    void PrintWithTwoPaths(const Position& current_pos, const std::vector<Position>& completed_path, const std::vector<Position>& planned_path) const;
+    void Print(const std::vector<Position>& path, std::ostream& output) const;
+    void PrintWithTwoPaths(const Position& current_pos, const std::vector<Position>& completed_path, const std::vector<Position>& planned_path, std::ostream& output) const;
   
     void UpdateDynamicEnvironment(double pin, double pout);
     double GetObstacleRatio() const;

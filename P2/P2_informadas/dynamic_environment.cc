@@ -2,25 +2,23 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <sstream>
 
-DynamicEnvironment::DynamicEnvironment(Maze* maze, double pin, double pout)
-  : maze_(maze), astar_(new AStar(maze)), pin_(pin), pout_(pout), max_failed_attempts_(5) {
+DynamicEnvironment::DynamicEnvironment(Maze* maze, double pin, double pout, char heuristic)
+  : maze_(maze), astar_(new AStar(maze, heuristic)), pin_(pin), pout_(pout), max_failed_attempts_(5) {
 }
 
 DynamicEnvironment::~DynamicEnvironment() {
   delete astar_;
 }
 
-DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, const Position& goal, 
-                                                      const std::string& filename, const std::string& original_filename) {
+DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, const Position& goal, const std::string& filename, const std::string& original_filename) {
   std::ofstream file(filename);
   if (!file.is_open()) {
     std::cerr << "Error: No se puede crear el archivo " << filename << std::endl;
     return DynamicResult();
   }
 
-  file << "Búsqueda A*. Función heurística h(·)\n";
+  file << "Busqueda A*. Funcion heuristica h(.)\n";
   file << std::setw(12) << "Instancia" << std::setw(5) << "n" << std::setw(5) << "m" 
        << std::setw(8) << "S" << std::setw(8) << "E" << std::setw(15) << "Camino" 
        << std::setw(8) << "Coste" << std::setw(12) << "Nodos Gen." << std::setw(12) << "Nodos Insp." << "\n";
@@ -176,24 +174,17 @@ DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, co
       }
       file << "--------------------------------------\n";
       
-      // Escribir el mapa al archivo usando un buffer temporal
-      std::ostringstream map_buffer;
-      std::streambuf* cout_backup = std::cout.rdbuf();
-      std::cout.rdbuf(map_buffer.rdbuf());
-      
-      maze_->PrintWithTwoPaths(current_position, detailed_result.complete_path, search_result.path);
-      
-      std::cout.rdbuf(cout_backup);
-      file << map_buffer.str();
+      // Escribir el mapa directamente al archivo
+      maze_->PrintWithTwoPaths(current_position, detailed_result.complete_path, search_result.path, file);
       
       if (current_position == goal) {
         detailed_result.success = true;
-        file << "¡OBJETIVO ALCANZADO!\n";
+        file << "OBJETIVO ALCANZADO!\n";
         break;
       }
       
       maze_->UpdateDynamicEnvironment(pin_, pout_);
-      file << "Entorno actualizado. Replanteando desde posición actual...\n";
+      file << "Entorno actualizado. Replanteando desde posicion actual...\n";
     }
   }
 

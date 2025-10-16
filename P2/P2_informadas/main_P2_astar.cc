@@ -7,75 +7,54 @@
 #include <iomanip>
 #include <cstdlib>
 
-void SaveResultToFile(const AStarResult& result, const std::string& filename, 
-                     const std::string& original_filename, const Position& start, 
-                     const Position& goal, const Maze* maze) {
+void SwapStartOrEnd(Maze& maze, Position& current_pos, int cell_type, const std::string& type_name) {
+  char respuesta;
+  std::cout << "¿Desea cambiar las coordenadas de " << type_name << "? (s/n): ";
+  std::cin >> respuesta;
+  
+  if (respuesta == 's' || respuesta == 'S') {
+    int new_row, new_col;
+    std::cout << "Introduzca las coordenadas de " << type_name << " (fila columna): ";
+    std::cin >> new_row >> new_col;
+    
+    bool is_on_border = (new_row == 0 || new_row == maze.GetRows() - 1 || new_col == 0 || new_col == maze.GetCols() - 1);
+    
+    if (maze.IsValidPosition(new_row, new_col) && is_on_border) {
+      int old_value = maze.GetCell(new_row, new_col);
+      maze.SetCell(current_pos.row, current_pos.col, old_value);
+      maze.SetCell(new_row, new_col, cell_type);
+      
+      current_pos.row = new_row;
+      current_pos.col = new_col;
+      std::cout << "Coordenadas de " << type_name << " actualizadas correctamente." << std::endl;
+    } else {
+      std::cout << "Coordenadas de " << type_name << " inválidas (debe estar en el borde del mapa). Se mantendrá la original." << std::endl;
+    }
+  }
+}
+
+void SaveResultToFile(const AStarResult& result, const std::string& filename, const Position& start, const Position& goal, const Maze* maze) {
   std::ofstream file(filename);
   if (!file.is_open()) {
     std::cerr << "Error: No se puede crear el archivo " << filename << std::endl;
     return;
   }
   
-  // Confeccionar la tabla de resultados
-  file << "Búsqueda A*. Función heurística h(·)\n";
-  file << std::setw(12) << "Instancia" << std::setw(5) << "n" << std::setw(5) << "m" 
-       << std::setw(8) << "S" << std::setw(8) << "E" << std::setw(15) << "Camino" 
-       << std::setw(8) << "Coste" << std::setw(12) << "Nodos Gen." << std::setw(12) << "Nodos Insp." << "\n";
+  file << "Laberinto estatico resuelto.\n";
   
-  file << std::setw(12) << original_filename;
-  file << std::setw(5) << maze->GetRows();
-  file << std::setw(5) << maze->GetCols();
-  file << std::setw(8) << ("(" + std::to_string(start.row) + "," + std::to_string(start.col) + ")");
-  file << std::setw(8) << ("(" + std::to_string(goal.row) + "," + std::to_string(goal.col) + ")");
-  file << std::setw(15) << (result.path_found ? "Encontrado" : "No encontrado");
-  file << std::setw(8) << std::fixed << std::setprecision(2) << result.total_cost;
-  file << std::setw(12) << result.nodes_generated;
-  file << std::setw(12) << result.nodes_inspected << "\n\n";
-  
-  file << "\nLaberinto estático resuelto.";
-  
-  // Capturar la salida del laberinto
-  std::streambuf* cout_backup = std::cout.rdbuf();
-  std::cout.rdbuf(file.rdbuf());
-  
+  // Escribir el laberinto directamente al archivo
   if (result.path_found) {
-    maze->Print(result.path);
+    maze->Print(result.path, file);
   } else {
-    maze->Print();
+    maze->Print({}, file);
   }
   
-  std::cout.rdbuf(cout_backup);
-  
-  // Información detallada por iteraciones
   file << "--------------------------------------\n";
   file << "Número de filas del mapa: " << maze->GetRows() << "\n";
   file << "Número de columnas del mapa: " << maze->GetCols() << "\n";
   file << "Punto de salida: (" << start.row << "," << start.col << ")\n";
   file << "Punto meta: (" << goal.row << "," << goal.col << ")\n";
   file << "--------------------------------------\n";
-  
-  for (const auto& iter : result.iteration_details) {
-    file << "Iteración " << iter.iteration << "\n";
-    
-    file << "Nodos generados: ";
-    for (size_t i = 0; i < iter.generated_nodes.size(); ++i) {
-      file << "(" << iter.generated_nodes[i].row << "," << iter.generated_nodes[i].col << ")";
-      if (i < iter.generated_nodes.size() - 1) file << ", ";
-    }
-    file << "\n";
-    
-    file << "Nodos inspeccionados: ";
-    if (iter.inspected_nodes.empty()) {
-      file << "-";
-    } else {
-      for (size_t i = 0; i < iter.inspected_nodes.size(); ++i) {
-        file << "(" << iter.inspected_nodes[i].row << "," << iter.inspected_nodes[i].col << ")";
-        if (i < iter.inspected_nodes.size() - 1) file << ", ";
-      }
-    }
-    file << "\n";
-    file << "--------------------------------------\n";
-  }
   
   if (result.path_found) {
     file << "Camino: ";
@@ -105,26 +84,34 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename,
 }
 
 void ShowUsage(const std::string& program_name) {
-  std::cout << "Uso: " << program_name << " <archivo_laberinto> <modo>" << std::endl;
+  std::cout << "Uso: " << program_name << " <archivo_laberinto> <modo> <heuristica>" << std::endl;
   std::cout << "  archivo_laberinto: Archivo con el laberinto (formato especificado)" << std::endl;
   std::cout << "  modo: 0 para entorno estático, 1 para entorno dinámico" << std::endl;
+  std::cout << "  heuristica: a para Manhattan, b para Euclidiana" << std::endl;
   std::cout << std::endl;
   std::cout << "Ejemplos:" << std::endl;
-  std::cout << "  " << program_name << " M_1.txt 0    # Ejecución estática" << std::endl;
-  std::cout << "  " << program_name << " M_1.txt 1    # Ejecución dinámica" << std::endl;
+  std::cout << "  " << program_name << " M_1.txt 0 a    # Ejecución estática con Manhattan" << std::endl;
+  std::cout << "  " << program_name << " M_1.txt 1 b    # Ejecución dinámica con Euclidiana" << std::endl;
 }
 
 int main(int argc, char* argv[]) {
-  if (argc != 3) {
+  if (argc != 4) {
     ShowUsage(argv[0]);
     return 1;
   }
   
   std::string filename = argv[1];
   int mode = std::atoi(argv[2]);
+  char heuristic = argv[3][0];
   
   if (mode != 0 && mode != 1) {
     std::cerr << "Error: El modo debe ser 0 (estático) o 1 (dinámico)" << std::endl;
+    ShowUsage(argv[0]);
+    return 1;
+  }
+  
+  if (heuristic != 'a' && heuristic != 'b') {
+    std::cerr << "Error: La heurística debe ser 'a' (Manhattan) o 'b' (Euclidiana)" << std::endl;
     ShowUsage(argv[0]);
     return 1;
   }
@@ -138,55 +125,9 @@ int main(int argc, char* argv[]) {
   Position start = maze.GetStart();
   Position goal = maze.GetEnd();
   
-  char respuesta_entrada, respuesta_salida;
-  
-  std::cout << "¿Desea cambiar las coordenadas de entrada? (s/n): ";
-  std::cin >> respuesta_entrada;
-  
-  if (respuesta_entrada == 's' || respuesta_entrada == 'S') {
-    int start_row, start_col;
-    std::cout << "Introduzca las coordenadas de entrada (fila columna): ";
-    std::cin >> start_row >> start_col;
-    
-    bool is_on_border = (start_row == 0 || start_row == maze.GetRows() - 1 || start_col == 0 || start_col == maze.GetCols() - 1);
-    
-    if (maze.IsValidPosition(start_row, start_col) && is_on_border) {
-      int new_value = maze.GetCell(start_row, start_col);
-      
-      maze.SetCell(start.row, start.col, new_value);
-      maze.SetCell(start_row, start_col, Maze::START);
-      
-      start.row = start_row;
-      start.col = start_col;
-      std::cout << "Coordenadas de entrada actualizadas correctamente." << std::endl;
-    } else {
-      std::cout << "Coordenadas de entrada inválidas (debe estar en el borde del mapa). Se mantendrá la original." << std::endl;
-    }
-  }
-  
-  std::cout << "¿Desea cambiar las coordenadas de salida? (s/n): ";
-  std::cin >> respuesta_salida;
-  
-  if (respuesta_salida == 's' || respuesta_salida == 'S') {
-    int goal_row, goal_col;
-    std::cout << "Introduzca las coordenadas de salida (fila columna): ";
-    std::cin >> goal_row >> goal_col;
-    
-    bool is_on_border = (goal_row == 0 || goal_row == maze.GetRows() - 1 || goal_col == 0 || goal_col == maze.GetCols() - 1);
-    
-    if (maze.IsValidPosition(goal_row, goal_col) && is_on_border) {
-      int new_value = maze.GetCell(goal_row, goal_col);
-      
-      maze.SetCell(goal.row, goal.col, new_value);
-      maze.SetCell(goal_row, goal_col, Maze::END);
-      
-      goal.row = goal_row;
-      goal.col = goal_col;
-      std::cout << "Coordenadas de salida actualizadas correctamente." << std::endl;
-    } else {
-      std::cout << "Coordenadas de salida inválidas (debe estar en el borde del mapa). Se mantendrá la original." << std::endl;
-    }
-  }
+  // Permitir cambiar coordenadas de entrada y salida
+  SwapStartOrEnd(maze, start, Maze::START, "entrada");
+  SwapStartOrEnd(maze, goal, Maze::END, "salida");
   
   std::cout << std::endl;
   
@@ -198,22 +139,21 @@ int main(int argc, char* argv[]) {
   std::cout << std::string(50, '=') << std::endl;
   
   if (mode == 0) {
-    AStar astar(&maze);
-    AStarResult result = astar.Search(start, goal, false); // Sin verbose
+    AStar astar(&maze, heuristic);
+    AStarResult result = astar.Search(start, goal, false);
     
     // Guardar información detallada en archivo
     std::string output_file = "resultado_estatico_" + filename;
-    SaveResultToFile(result, output_file, filename, start, goal, &maze);
+    SaveResultToFile(result, output_file, start, goal, &maze);
     
     std::cout << "\nInformación detallada guardada en: " << output_file << "\n" << std::endl;
     
   } else {
-    double pin = 0.5;  // 50% probabilidad de convertir casilla en obstáculo
-    double pout = 0.5; // 50% probabilidad de liberar un obstaculo
+    double pin = 0.5;  // Probabilidad de convertir casilla en obstáculo
+    double pout = 0.5; // Probabilidad de liberar un obstaculo
     
-    DynamicEnvironment dynamic_env(&maze, pin, pout);
+    DynamicEnvironment dynamic_env(&maze, pin, pout, heuristic);
     
-    // Ejecutar solo para generar el archivo (sin salida por pantalla)
     std::string output_file = "resultado_dinamico_" + filename;
     dynamic_env.ExecuteDynamicToFile(start, goal, output_file, filename);
     
