@@ -20,10 +20,22 @@ void SwapStartOrEnd(Maze& maze, Position& current_pos, int cell_type, const std:
     bool is_on_border = (new_row == 0 || new_row == maze.GetRows() - 1 || new_col == 0 || new_col == maze.GetCols() - 1);
     
     if (maze.IsValidPosition(new_row, new_col) && is_on_border) {
-      int old_value = maze.GetCell(new_row, new_col);
-      maze.SetCell(current_pos.row, current_pos.col, old_value);
-      maze.SetCell(new_row, new_col, cell_type);
+      Position new_pos(new_row, new_col);
       
+      // SWAP: Guardar el valor de la celda destino
+      int temp_value = maze.GetCell(new_row, new_col);
+      
+      // Poner el valor de la celda destino en la posición antigua
+      maze.SetCell(current_pos.row, current_pos.col, temp_value);
+      
+      // Poner START o END en la nueva posición
+      if (cell_type == Maze::START) {
+        maze.SetStart(new_pos);
+      } else {
+        maze.SetEnd(new_pos);
+      }
+      
+      // Actualizar la variable de posición
       current_pos.row = new_row;
       current_pos.col = new_col;
       std::cout << "Coordenadas de " << type_name << " actualizadas correctamente." << std::endl;
@@ -64,7 +76,7 @@ void SaveResultToFile(const AStarResult& result, const std::string& filename, co
     }
     file << "\n";
     file << "--------------------------------------\n";
-    file << "Costo: " << std::fixed << std::setprecision(2) << result.total_cost << "\n";
+    file << "Coste: " << std::fixed << std::setprecision(2) << result.total_cost << "\n";
     file << "--------------------------------------\n\n";
   }
   

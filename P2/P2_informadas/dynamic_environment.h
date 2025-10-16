@@ -5,7 +5,6 @@
 #include "A_star.h"
 #include <vector>
 #include <string>
-#include <fstream>
 
 struct DynamicResult {
   bool success;
@@ -32,8 +31,6 @@ class DynamicEnvironment {
     double pin_;                // Probabilidad de que casilla libre se convierta en obstáculo
     double pout_;               // Probabilidad de que obstáculo se libere
     int max_failed_attempts_;
-  
-    bool ExecuteStep(Position& current_pos, const std::vector<Position>& planned_path, size_t& step_index, DynamicResult& result);
 };
 
 #endif

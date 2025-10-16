@@ -93,9 +93,6 @@ void Maze::SetCell(int row, int col, int value) {
 
 void Maze::SetStart(const Position& pos) {
   if (IsValidPosition(pos.row, pos.col) && IsOnBorder(pos)) {
-    if (IsValidPosition(start_.row, start_.col)) {
-      grid_[start_.row][start_.col] = FREE;
-    }
     start_ = pos;
     grid_[pos.row][pos.col] = START;
   }
@@ -103,9 +100,6 @@ void Maze::SetStart(const Position& pos) {
 
 void Maze::SetEnd(const Position& pos) {
   if (IsValidPosition(pos.row, pos.col) && IsOnBorder(pos)) {
-    if (IsValidPosition(end_.row, end_.col)) {
-      grid_[end_.row][end_.col] = FREE;
-    }
     end_ = pos;
     grid_[pos.row][pos.col] = END;
   }
@@ -185,7 +179,7 @@ void Maze::Print(const std::vector<Position>& path, std::ostream& output) const 
       } else if (display_grid[i][j] == OBSTACLE) {
         output << " █ ";
       } else {
-        output << "   ";
+        output << " · ";
       }
     }
     output << "\n";
@@ -218,7 +212,7 @@ void Maze::PrintWithTwoPaths(const Position& current_pos, const std::vector<Posi
       if (display_grid[i][j] == -2) {
         output << " A ";
       } else if (display_grid[i][j] == -1) {
-        output << " * ";
+        output << " x ";
       } else if (display_grid[i][j] == -3) {
         output << " + ";
       } else if (display_grid[i][j] == START) {

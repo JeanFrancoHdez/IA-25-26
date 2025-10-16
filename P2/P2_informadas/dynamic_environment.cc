@@ -18,80 +18,14 @@ DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, co
     return DynamicResult();
   }
 
-  file << "Busqueda A*. Funcion heuristica h(.)\n";
-  file << std::setw(12) << "Instancia" << std::setw(5) << "n" << std::setw(5) << "m" 
-       << std::setw(8) << "S" << std::setw(8) << "E" << std::setw(15) << "Camino" 
-       << std::setw(8) << "Coste" << std::setw(12) << "Nodos Gen." << std::setw(12) << "Nodos Insp." << "\n";
-
-  Position current_pos = start;
-  DynamicResult file_result;
-  file_result.complete_path.push_back(current_pos);
-  int consecutive_failures = 0;
-  
-  while (!(current_pos == goal) && consecutive_failures < max_failed_attempts_) {
-    file_result.obstacle_ratios.push_back(maze_->GetObstacleRatio());
-    
-    AStarResult search_result = astar_->Search(current_pos, goal, false);
-    file_result.individual_searches.push_back(search_result);
-    
-    if (!search_result.path_found) {
-      consecutive_failures++;
-      if (consecutive_failures >= max_failed_attempts_) {
-        file_result.failed_attempts = consecutive_failures;
-        break;
-      }
-      maze_->UpdateDynamicEnvironment(pin_, pout_);
-      continue;
-    } else {
-      consecutive_failures = 0;
-    }
-    
-    if (search_result.path.size() > 1) {
-      Position next_pos = search_result.path[1];
-      double step_cost = maze_->GetMovementCost(current_pos, next_pos);
-      
-      current_pos = next_pos;
-      file_result.complete_path.push_back(current_pos);
-      file_result.total_cost += step_cost;
-      file_result.total_steps++;
-      
-      if (current_pos == goal) {
-        file_result.success = true;
-        break;
-      }
-      
-      maze_->UpdateDynamicEnvironment(pin_, pout_);
-    }
-  }
-  
-  int total_generated = 0, total_inspected = 0;
-  for (const auto& search : file_result.individual_searches) {
-    total_generated += search.nodes_generated;
-    total_inspected += search.nodes_inspected;
-  }
-  
-  // Escribir tabla
-  file << std::setw(12) << original_filename;
-  file << std::setw(5) << maze_->GetRows();
-  file << std::setw(5) << maze_->GetCols();
-  file << std::setw(8) << ("(" + std::to_string(start.row) + "," + std::to_string(start.col) + ")");
-  file << std::setw(8) << ("(" + std::to_string(goal.row) + "," + std::to_string(goal.col) + ")");
-  file << std::setw(15) << (file_result.success ? "Encontrado" : "No encontrado");
-  file << std::setw(8) << std::fixed << std::setprecision(2) << file_result.total_cost;
-  file << std::setw(12) << total_generated;
-  file << std::setw(12) << total_inspected << "\n\n";
-
-  // Reiniciar el laberinto desde su estado original para la ejecución detallada
-  maze_->LoadFromFile(original_filename);
-
-  file << "=== BÚSQUEDAS INFORMADAS - ALGORITMO A* ===\n";
+  file << "=== BUSQUEDAS INFORMADAS - ALGORITMO A* ===\n";
   file << "Archivo: " << original_filename << "\n";
-  file << "Modo: Dinámico\n";
+  file << "Modo: Dinamico\n";
   file << "Inicio: (" << start.row << "," << start.col << ")\n";
   file << "Objetivo: (" << goal.row << "," << goal.col << ")\n";
   file << std::string(50, '=') << "\n\n";
   
-  file << "=== INICIANDO EJECUCIÓN EN ENTORNO DINÁMICO ===\n";
+  file << "=== INICIANDO EJECUCION EN ENTORNO DINAMICO ===\n";
   file << "Desde: (" << start.row << "," << start.col << ")\n";
   file << "Hasta: (" << goal.row << "," << goal.col << ")\n";
   file << "Probabilidades: pin = " << pin_ << ", pout = " << pout_ << "\n";
@@ -127,8 +61,16 @@ DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, co
       failures = 0;
     }
     
-    file << "Camino encontrado. Longitud: " << search_result.path.size() 
-         << ", Coste: " << search_result.total_cost << "\n";
+    file << "Camino encontrado. Longitud: " << search_result.path.size() << "\n";
+    file << "--------------------------------------\n";
+    file << "Camino planeado en esta iteración: ";
+    for (size_t i = 0; i < search_result.path.size(); ++i) {
+      file << "(" << search_result.path[i].row << "," << search_result.path[i].col << ")";
+      if (i < search_result.path.size() - 1) file << " - ";
+    }
+    file << "\n";
+    file << "Coste del camino planeado en esta iteración: " << std::fixed << std::setprecision(2) << search_result.total_cost << "\n";
+    file << "--------------------------------------\n";
     file << "Iniciando navegación paso a paso...\n";
     
     if (search_result.path.size() > 1) {
@@ -142,7 +84,6 @@ DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, co
       
       file << "\n--- MOVIMIENTO " << detailed_result.total_steps << " ---\n";
       file << "Posición actualizada: (" << current_position.row << "," << current_position.col << ")\n";
-      file << "Coste del paso: " << step_cost << "\n";
       file << "Coste acumulado: " << std::fixed << std::setprecision(1) << detailed_result.total_cost << "\n";
       file << "Número de reintentos sin éxito: " << failures << "\n";
       file << "Proporción media de obstáculos dinámicos: " << std::fixed << std::setprecision(1) 
@@ -188,16 +129,23 @@ DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, co
     }
   }
 
-  if (file_result.success) {
+  if (detailed_result.success) {
     file << "--------------------------------------\n";
-    file << "Camino: ";
+    file << "Camino final: ";
     for (size_t i = 0; i < detailed_result.complete_path.size(); ++i) {
       file << "(" << detailed_result.complete_path[i].row << "," << detailed_result.complete_path[i].col << ")";
       if (i < detailed_result.complete_path.size() - 1) file << " - ";
     }
     file << "\n--------------------------------------\n";
-    file << "Costo: " << std::fixed << std::setprecision(2) << detailed_result.total_cost << "\n";
+    file << "Coste: " << std::fixed << std::setprecision(2) << detailed_result.total_cost << "\n";
     file << "--------------------------------------\n\n";
+  }
+  
+  // Calcular totales
+  int total_generated = 0, total_inspected = 0;
+  for (const auto& search : detailed_result.individual_searches) {
+    total_generated += search.nodes_generated;
+    total_inspected += search.nodes_inspected;
   }
   
   double avg_obstacle_ratio = 0.0;
@@ -209,16 +157,16 @@ DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, co
   }
   
   file << "=== RESULTADOS GENERALES ===\n";
-  file << "Resultado: " << (detailed_result.success ? "Camino encontrado" : "No se encontró camino") << "\n";
-  if (file_result.success) {
-    file << "Coste total: " << std::fixed << std::setprecision(2) << file_result.total_cost << "\n";
-    file << "Longitud del camino: " << file_result.complete_path.size() << " casillas\n";
+  file << "Resultado: " << (detailed_result.success ? "Camino encontrado" : "No se encontro camino") << "\n";
+  if (detailed_result.success) {
+    file << "Coste total: " << std::fixed << std::setprecision(2) << detailed_result.total_cost << "\n";
+    file << "Longitud del camino: " << detailed_result.complete_path.size() << " casillas\n";
   }
   file << "Nodos generados: " << total_generated << "\n";
   file << "Nodos inspeccionados: " << total_inspected << "\n";
   file << "Pasos realizados: " << detailed_result.total_steps << "\n";
-  file << "Número de reintentos sin éxito: " << detailed_result.failed_attempts << "\n";
-  file << "Proporción media de obstáculos: " << std::fixed << std::setprecision(1) 
+  file << "Numero de reintentos sin exito: " << detailed_result.failed_attempts << "\n";
+  file << "Proporcion media de obstaculos: " << std::fixed << std::setprecision(1) 
        << (avg_obstacle_ratio * 100) << "%\n";
   
   file.close();
