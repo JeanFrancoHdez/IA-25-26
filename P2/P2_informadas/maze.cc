@@ -179,7 +179,7 @@ void Maze::Print(const std::vector<Position>& path, std::ostream& output) const 
       } else if (display_grid[i][j] == OBSTACLE) {
         output << " █ ";
       } else {
-        output << " · ";
+        output << "   ";
       }
     }
     output << "\n";
@@ -212,7 +212,7 @@ void Maze::PrintWithTwoPaths(const Position& current_pos, const std::vector<Posi
       if (display_grid[i][j] == -2) {
         output << " A ";
       } else if (display_grid[i][j] == -1) {
-        output << " x ";
+        output << " * ";
       } else if (display_grid[i][j] == -3) {
         output << " + ";
       } else if (display_grid[i][j] == START) {
@@ -222,7 +222,7 @@ void Maze::PrintWithTwoPaths(const Position& current_pos, const std::vector<Posi
       } else if (display_grid[i][j] == OBSTACLE) {
         output << " █ ";
       } else {
-        output << " · ";
+        output << "   ";
       }
     }
     output << "\n";
