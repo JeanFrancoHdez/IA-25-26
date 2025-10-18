@@ -1,0 +1,364 @@
+=== BUSQUEDAS INFORMADAS - ALGORITMO A* ===
+Archivo: M_1.txt
+Modo: Dinamico
+Inicio: (0,0)
+Objetivo: (0,9)
+==================================================
+
+=== INICIANDO EJECUCION EN ENTORNO DINAMICO ===
+Desde: (0,0)
+Hasta: (0,9)
+Probabilidades: pin = 0.5, pout = 0.5
+
+--- PLANIFICACIÓN 1 ---
+Posición actual: (0,0)
+Camino encontrado. Longitud: 14
+--------------------------------------
+Camino planeado en esta iteración: (0,0) - (1,1) - (2,2) - (3,2) - (4,2) - (5,3) - (5,4) - (5,5) - (5,6) - (4,7) - (3,8) - (2,8) - (1,8) - (0,9)
+Coste del camino planeado en esta iteración: 77.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 1 ---
+Posición actualizada: (1,1)
+Coste acumulado: 7.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 45.5%
+Número de nodos generados: 40
+Número de nodos inspeccionados: 33
+--------------------------------------
+Nodos generados: (0,9), (7,7), (7,8), (2,6), (7,2), (1,6), (6,8), (7,1), (1,7), (6,7), (1,8), (5,3), (5,4), (4,1), (1,2), (4,2), (3,1), (3,2), (6,1), (2,1), (2,2), (5,1), (1,1), (5,2), (0,0), (5,8), (5,5), (5,6), (2,7), (6,4), (4,7), (5,7), (2,8), (6,3), (3,8), (6,2), (6,5), (3,7), (6,6), (4,8)
+Nodos inspeccionados: (1,7), (6,7), (1,8), (5,3), (5,4), (4,1), (1,2), (4,2), (3,1), (3,2), (6,1), (2,1), (2,2), (5,1), (1,1), (5,2), (0,0), (5,8), (5,5), (5,6), (2,7), (6,4), (4,7), (5,7), (2,8), (6,3), (3,8), (6,2), (6,5), (3,7), (6,6), (4,8)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S  █  █  █  █  █  █  █  █  E 
+ █  A     █              +  █ 
+ █     +  █              +  █ 
+ █     +  █        █     +  █ 
+ █     +  █  █  █  █  +     █ 
+ █        +  +  +  +        █ 
+ █                          █ 
+ █        █  █  █  █        █ 
+ █        █                 █ 
+ █        █                 █ 
+ █  █  █  █  █  █  █  █  █  █ 
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 2 ---
+Posición actual: (1,1)
+Camino encontrado. Longitud: 10
+--------------------------------------
+Camino planeado en esta iteración: (1,1) - (1,2) - (1,3) - (1,4) - (1,5) - (1,6) - (2,7) - (2,8) - (1,9) - (0,9)
+Coste del camino planeado en esta iteración: 49.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 2 ---
+Posición actualizada: (1,2)
+Coste acumulado: 12.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 41
+Número de nodos inspeccionados: 31
+--------------------------------------
+Nodos generados: (4,8), (0,9), (4,7), (4,6), (4,5), (5,4), (4,1), (5,5), (4,2), (5,3), (4,0), (3,7), (4,3), (4,4), (3,0), (1,9), (3,6), (2,8), (2,7), (3,1), (2,6), (3,2), (3,3), (2,5), (2,0), (1,6), (2,4), (2,3), (1,5), (2,1), (1,0), (1,4), (0,5), (0,0), (2,2), (0,4), (1,3), (0,3), (1,2), (0,1), (1,1)
+Nodos inspeccionados: (3,7), (4,3), (4,4), (3,0), (1,9), (3,6), (2,8), (2,7), (3,1), (2,6), (3,2), (3,3), (2,5), (2,0), (1,6), (2,4), (2,3), (1,5), (2,1), (1,0), (1,4), (0,5), (0,0), (2,2), (0,4), (1,3), (0,3), (1,2), (0,1), (1,1)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S     █           █  █  █  E 
+    *  A  +  +  +  +  █  █  + 
+                      +  +  █ 
+             █  █        █  █ 
+                            █ 
+ █     █                      
+    █        █  █             
+                              
+ █              █  █     █    
+    █  █           █        █ 
+ █  █                         
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 3 ---
+Posición actual: (1,2)
+Camino encontrado. Longitud: 8
+--------------------------------------
+Camino planeado en esta iteración: (1,2) - (1,3) - (0,4) - (0,5) - (1,6) - (0,7) - (0,8) - (0,9)
+Coste del camino planeado en esta iteración: 41.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 3 ---
+Posición actualizada: (1,3)
+Coste acumulado: 17.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 34
+Número de nodos inspeccionados: 21
+--------------------------------------
+Nodos generados: (4,1), (1,9), (3,8), (0,9), (2,8), (4,5), (2,0), (3,1), (1,8), (3,6), (1,0), (3,0), (4,3), (3,7), (3,2), (2,7), (0,8), (3,3), (1,7), (3,4), (0,7), (2,6), (2,1), (1,6), (2,5), (1,5), (2,4), (2,2), (2,3), (0,5), (0,4), (1,3), (0,2), (1,2)
+Nodos inspeccionados: (3,2), (2,7), (0,8), (3,3), (1,7), (3,4), (0,7), (2,6), (2,1), (1,6), (2,5), (1,5), (2,4), (2,2), (2,3), (0,5), (0,4), (1,3), (0,2), (1,2)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S  █     █  +  +  █  +  +  E 
+    *  *  A  █     +          
+                              
+                █             
+ █     █     █                
+    █                       █ 
+    █  █  █     █  █  █  █    
+ █                       █  █ 
+                   █     █    
+ █                            
+       █     █  █             
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 4 ---
+Posición actual: (1,3)
+Camino encontrado. Longitud: 7
+--------------------------------------
+Camino planeado en esta iteración: (1,3) - (0,4) - (0,5) - (0,6) - (0,7) - (0,8) - (0,9)
+Coste del camino planeado en esta iteración: 32.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 4 ---
+Posición actualizada: (0,4)
+Coste acumulado: 24.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 29
+Número de nodos inspeccionados: 17
+--------------------------------------
+Nodos generados: (3,6), (1,9), (0,9), (3,2), (1,8), (2,7), (3,5), (3,3), (3,4), (2,6), (1,1), (0,1), (2,2), (1,7), (2,5), (0,8), (2,3), (1,2), (0,7), (1,6), (2,4), (0,6), (1,5), (0,2), (0,5), (1,4), (0,3), (0,4), (1,3)
+Nodos inspeccionados: (1,7), (2,5), (0,8), (2,3), (1,2), (0,7), (1,6), (2,4), (0,6), (1,5), (0,2), (0,5), (1,4), (0,3), (0,4), (1,3)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S           A  +  +  +  +  E 
+    *  *  *                   
+    █                    █  █ 
+    █                         
+       █     █                
+ █           █  █             
+       █  █              █    
+          █  █        █  █    
+       █        █  █  █       
+          █  █  █  █  █  █    
+       █                      
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 5 ---
+Posición actual: (0,4)
+Camino encontrado. Longitud: 6
+--------------------------------------
+Camino planeado en esta iteración: (0,4) - (0,5) - (0,6) - (0,7) - (0,8) - (0,9)
+Coste del camino planeado en esta iteración: 25.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 5 ---
+Posición actualizada: (0,5)
+Coste acumulado: 29.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 20
+Número de nodos inspeccionados: 10
+--------------------------------------
+Nodos generados: (2,7), (1,2), (0,2), (1,9), (0,9), (2,3), (2,6), (2,5), (1,8), (1,7), (1,3), (1,6), (0,3), (0,8), (1,4), (1,5), (0,7), (0,6), (0,5), (0,4)
+Nodos inspeccionados: (1,6), (0,3), (0,8), (1,4), (1,5), (0,7), (0,6), (0,5), (0,4)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S  █        *  A  +  +  +  E 
+ █  *  *  *                   
+    █        █                
+ █  █     █              █    
+          █                   
+       █              █       
+ █                 █  █       
+ █  █  █        █             
+                █  █  █  █    
+                      █       
+                   █  █  █    
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 6 ---
+Posición actual: (0,5)
+Camino encontrado. Longitud: 5
+--------------------------------------
+Camino planeado en esta iteración: (0,5) - (0,6) - (0,7) - (0,8) - (0,9)
+Coste del camino planeado en esta iteración: 20.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 6 ---
+Posición actualizada: (0,6)
+Coste acumulado: 34.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 13
+Número de nodos inspeccionados: 7
+--------------------------------------
+Nodos generados: (2,4), (2,7), (2,6), (1,9), (0,9), (1,8), (1,7), (1,5), (1,6), (0,8), (0,7), (0,6), (0,5)
+Nodos inspeccionados: (1,5), (1,6), (0,8), (0,7), (0,6), (0,5)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S           *  *  A  +  +  E 
+    *  *  *  █                
+          █     █        █  █ 
+             █           █    
+                █           █ 
+                   █        █ 
+       █                 █    
+    █                    █    
+    █                         
+       █  █           █       
+    █        █     █  █       
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 7 ---
+Posición actual: (0,6)
+Camino encontrado. Longitud: 4
+--------------------------------------
+Camino planeado en esta iteración: (0,6) - (1,7) - (0,8) - (0,9)
+Coste del camino planeado en esta iteración: 19.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 7 ---
+Posición actualizada: (1,7)
+Coste acumulado: 41.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 11
+Número de nodos inspeccionados: 6
+--------------------------------------
+Nodos generados: (1,9), (0,9), (2,5), (2,8), (2,6), (1,5), (0,8), (0,5), (1,6), (1,7), (0,6)
+Nodos inspeccionados: (0,8), (0,5), (1,6), (1,7), (0,6)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S           *  *  *  █  +  E 
+    *  *  *  █        A  █    
+                      █       
+             █  █             
+ █                    █       
+ █           █     █          
+                         █    
+ █        █     █  █  █       
+             █  █  █          
+    █        █              █ 
+ █        █                   
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 8 ---
+Posición actual: (1,7)
+¡No se encontró camino! Intento fallido #1
+Actualizando entorno y reintentando...
+
+--- PLANIFICACIÓN 8 ---
+Posición actual: (1,7)
+Camino encontrado. Longitud: 3
+--------------------------------------
+Camino planeado en esta iteración: (1,7) - (0,8) - (0,9)
+Coste del camino planeado en esta iteración: 12.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 8 ---
+Posición actualizada: (0,8)
+Coste acumulado: 48.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 11
+Número de nodos inspeccionados: 5
+--------------------------------------
+Nodos generados: (2,9), (1,9), (0,9), (2,6), (0,6), (1,6), (2,7), (1,8), (0,7), (0,8), (1,7)
+Nodos inspeccionados: (1,8), (0,7), (0,8), (1,7)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S           *  *  *     A  E 
+ █  *  *  *     █     *       
+       █                 █    
+                              
+ █              █  █          
+          █     █        █    
+                      █  █  █ 
+       █  █              █    
+    █           █     █  █  █ 
+    █        █     █          
+                   █          
+
+Entorno actualizado. Replanteando desde posicion actual...
+
+--- PLANIFICACIÓN 9 ---
+Posición actual: (0,8)
+Camino encontrado. Longitud: 2
+--------------------------------------
+Camino planeado en esta iteración: (0,8) - (0,9)
+Coste del camino planeado en esta iteración: 5.00
+--------------------------------------
+Iniciando navegación paso a paso...
+
+--- MOVIMIENTO 9 ---
+Posición actualizada: (0,9)
+Coste acumulado: 53.0
+Número de reintentos sin éxito: 0
+Proporción media de obstáculos dinámicos: 24.5%
+Número de nodos generados: 6
+Número de nodos inspeccionados: 2
+--------------------------------------
+Nodos generados: (1,9), (1,7), (0,9), (0,7), (1,8), (0,8)
+Nodos inspeccionados: (0,8)
+--------------------------------------
+
+Informacion del mapa (A = agente, * = camino recorrido, + = camino planificado):
+
+ S  █  █     *  *  *     *  E 
+    *  *  *     █     *       
+                   █          
+                █     █       
+    █                 █       
+                   █          
+          █  █     █  █       
+    █  █  █     █        █    
+       █     █                
+       █  █              █    
+ █                    █  █    
+
+OBJETIVO ALCANZADO!
+--------------------------------------
+Camino final: (0,0) - (1,1) - (1,2) - (1,3) - (0,4) - (0,5) - (0,6) - (1,7) - (0,8) - (0,9)
+--------------------------------------
+Coste: 53.00
+--------------------------------------
+
+=== RESULTADOS GENERALES ===
+Resultado: Camino encontrado
+Coste total: 53.00
+Longitud del camino: 10 casillas
+Nodos generados: 287
+Nodos inspeccionados: 214
+Pasos realizados: 9
+Numero de reintentos sin exito: 0
+Proporcion media de obstaculos: 26.6%
