@@ -151,14 +151,51 @@ int main(int argc, char* argv[]) {
   std::cout << std::string(50, '=') << std::endl;
   
   if (mode == 0) {
-    AStar astar(&maze, heuristic);
-    AStarResult result = astar.Search(start, goal, false);
+    std::string output_file = "resultado_5mejores_" + filename;
+    std::ofstream file(output_file);
+    if (!file.is_open()) {
+      std::cerr << "Error: No se puede crear el archivo " << output_file << std::endl;
+      return 1;
+    }
     
-    // Guardar información detallada en archivo
-    std::string output_file = "resultado_estatico_" + filename;
-    SaveResultToFile(result, output_file, start, goal, &maze);
+    file << "=== A* MODIFICADO (5 MEJORES) - 10 REPETICIONES ===" << std::endl;
+    file << "Archivo: " << filename << std::endl;
+    file << "Heurística: " << (heuristic == 'a' ? "Manhattan" : "Euclidiana") << std::endl;
+    file << "Inicio: (" << start.row << "," << start.col << ")" << std::endl;
+    file << "Objetivo: (" << goal.row << "," << goal.col << ")" << std::endl;
+    file << std::string(70, '=') << std::endl << std::endl;
     
-    std::cout << "\nInformación detallada guardada en: " << output_file << "\n" << std::endl;
+    // Ejecutar 10 repeticiones
+    for (int rep = 1; rep <= 10; ++rep) {
+      std::cout << "Ejecutando repetición " << rep << "/10..." << std::endl;
+      
+      AStar astar(&maze, heuristic);
+      AStarResult result = astar.Search5Best(start, goal, false);
+      
+      file << "REPETICIÓN " << rep << std::endl;
+      file << std::string(40, '-') << std::endl;
+      
+      if (result.path_found) {
+        file << "Camino encontrado: SI" << std::endl;
+        file << "Coste total: " << result.total_cost << std::endl;
+        file << "Nodos generados: " << result.nodes_generated << std::endl;
+        file << "Nodos inspeccionados: " << result.nodes_inspected << std::endl;
+        file << "Iteraciones: " << result.iterations << std::endl;
+        file << "Camino: ";
+        for (size_t i = 0; i < result.path.size(); ++i) {
+          file << "(" << result.path[i].row << "," << result.path[i].col << ")";
+          if (i < result.path.size() - 1) file << " -> ";
+        }
+        file << std::endl;
+      } else {
+        file << "Camino encontrado: NO" << std::endl;
+      }
+      
+      file << std::endl;
+    }
+    
+    file.close();
+    std::cout << "\nResultados de 10 repeticiones guardados en: " << output_file << "\n" << std::endl;
     
   } else {
     double pin = 0.5;  // Probabilidad de convertir casilla en obstáculo

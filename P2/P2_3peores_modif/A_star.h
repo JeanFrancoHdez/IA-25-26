@@ -32,6 +32,7 @@ class AStar {
     ~AStar();
   
     AStarResult Search(const Position& start, const Position& goal, bool verbose = true);
+    AStarResult Search3Worst(const Position& start, const Position& goal, bool verbose = true);
   
   private:
     Maze* maze_;
