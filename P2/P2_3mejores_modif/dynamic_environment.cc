@@ -41,7 +41,7 @@ DynamicResult DynamicEnvironment::ExecuteDynamicToFile(const Position& start, co
     
     detailed_result.obstacle_ratios.push_back(maze_->GetObstacleRatio());
     
-    AStarResult search_result = astar_->Search(current_position, goal, false);
+    AStarResult search_result = astar_->Search3Best(current_position, goal, false);
     detailed_result.individual_searches.push_back(search_result);
     
     if (!search_result.path_found) {

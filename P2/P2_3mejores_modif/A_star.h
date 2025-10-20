@@ -32,7 +32,8 @@ class AStar {
     ~AStar();
   
     AStarResult Search(const Position& start, const Position& goal, bool verbose = true);
-    AStarResult Search3Worst(const Position& start, const Position& goal, bool verbose = true);
+    // Modificación
+    AStarResult Search3Best(const Position& start, const Position& goal, bool verbose = true);
   
   private:
     Maze* maze_;
